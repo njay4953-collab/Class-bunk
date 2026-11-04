@@ -155,8 +155,8 @@
             </div>
         </section>
 
-                </main>
-                    <!-- PROFILE & API MODAL -->
+    </main>
+        <!-- PROFILE & API MODAL -->
     <div id="profileModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-700 shadow-2xl">
             <div class="flex justify-between items-center">
@@ -225,7 +225,7 @@
         <!-- SCRIPT ENGINE -->
     <script>
         let currentTab = 'dashboard';
-        let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
+        let subjects = [
             { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: [
                 { name: 'Unit 1: Matrices', impTopics: ['Eigenvalues & Eigenvectors', 'Cayley-Hamilton Theorem', 'Rank of Matrix'] },
                 { name: 'Unit 2: Differential Equations', impTopics: ['Linear ODEs of Higher Order', 'Method of Variation of Parameters'] },
@@ -237,7 +237,17 @@
             ]}
         ];
 
-        let timetableData = JSON.parse(localStorage.getItem('classbunk_timetable')) || [
+        try {
+            const savedSub = localStorage.getItem('classbunk_subjects');
+            if (savedSub) {
+                const parsed = JSON.parse(savedSub);
+                if (Array.isArray(parsed) && parsed.length > 0) subjects = parsed;
+            }
+        } catch(e) {
+            localStorage.removeItem('classbunk_subjects');
+        }
+
+        let timetableData = [
             { day: 'Monday', classes: ['Engineering Math I - 09:00 AM', 'Engineering Physics - 10:00 AM'] },
             { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM'] },
             { day: 'Wednesday', classes: ['Basic Electronics - 10:00 AM'] },
@@ -245,15 +255,29 @@
             { day: 'Friday', classes: ['Mathematics Tutorial - 09:00 AM'] }
         ];
 
+        try {
+            const savedTime = localStorage.getItem('classbunk_timetable');
+            if (savedTime) {
+                const parsedTime = JSON.parse(savedTime);
+                if (Array.isArray(parsedTime) && parsedTime.length > 0) timetableData = parsedTime;
+            }
+        } catch(e) {
+            localStorage.removeItem('classbunk_timetable');
+        }
+
         let holidaysCount = localStorage.getItem('classbunk_holidays') || 0;
 
         function switchTab(tab) {
             currentTab = tab;
             ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden'); const btn = document.getElementById(`nav-btn-${t}`);
+                const el = document.getElementById(`tab-${t}`);
+                if(el) el.classList.add('hidden');
+                const btn = document.getElementById(`nav-btn-${t}`);
                 if(btn) btn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition";
             });
-            document.getElementById(`tab-${tab}`).classList.remove('hidden'); const activeBtn = document.getElementById(`nav-btn-${tab}`);
+            const activeTabEl = document.getElementById(`tab-${tab}`);
+            if(activeTabEl) activeTabEl.classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-btn-${tab}`);
             if(activeBtn) activeBtn.className = "flex flex-col items-center gap-1 text-brand-400 transition";
             
             if(tab === 'timetable') renderTimetable();
@@ -283,6 +307,7 @@
 
         function renderDashboard() {
             const grid = document.getElementById('subjectGrid');
+            if(!grid) return;
             grid.innerHTML = '';
             subjects.forEach(sub => {
                 const percentage = sub.total === 0 ? 0 : Math.round((sub.attended / sub.total) * 100);
@@ -304,7 +329,9 @@
                     </div>
                 `;
             });
-            localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            try {
+                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            } catch(e) {}
         }
 
         function updateAttendance(id, attInc, totInc) {
@@ -317,17 +344,22 @@
         }
 
         function saveNewSubject() {
-            const name = document.getElementById('newSubName').value.trim();
+            const nameInput = document.getElementById('newSubName');
+            if(!nameInput) return;
+            const name = nameInput.value.trim();
             if(name) {
                 subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: [{ name: 'Unit 1', impTopics: ['Basic Concepts'] }] });
+                nameInput.value = '';
                 closeAddSubjectModal();
                 renderDashboard();
             }
         }
 
         function renderTimetable() {
-            document.getElementById('holidayCount').innerText = holidaysCount + ' days';
+            const hCount = document.getElementById('holidayCount');
+            if(hCount) hCount.innerText = holidaysCount + ' days';
             const container = document.getElementById('timetableContainer');
+            if(!container) return;
             container.innerHTML = '';
             timetableData.forEach((day, idx) => {
                 container.innerHTML += `
@@ -346,7 +378,9 @@
             const className = prompt("Enter course name & time (e.g., Electronics - 10:00 AM):");
             if(className) {
                 timetableData[idx].classes.push(className);
-                localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                try {
+                    localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                } catch(e) {}
                 renderTimetable();
             }
         }
@@ -355,7 +389,9 @@
             const dayName = prompt("Enter day name (e.g., Saturday):");
             if(dayName) {
                 timetableData.push({ day: dayName, classes: [] });
-                localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                try {
+                    localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                } catch(e) {}
                 renderTimetable();
             }
         }
@@ -381,22 +417,25 @@
 
         function initSyllabusDropdown() {
             const select = document.getElementById('syllabusSubjectSelect');
+            if(!select) return;
             select.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             renderSyllabusContent();
         }
 
         function renderSyllabusContent() {
-            const id = document.getElementById('syllabusSubjectSelect').value;
+            const select = document.getElementById('syllabusSubjectSelect');
+            if(!select) return;
+            const id = select.value;
             const sub = subjects.find(s => s.id === id);
             const container = document.getElementById('syllabusContainer');
-            if(!sub) return;
+            if(!sub || !container) return;
             container.innerHTML = sub.syllabus.map((chap, uIdx) => `
                 <div class="glass-card p-4 rounded-xl space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bookmark text-brand-400"></i> ${chap.name}</span>
                         <div class="flex items-center gap-2">
-                            <button onclick="addImpTopicPrompt('${sub.id}',${uIdx})" class="text-[10px] bg-brand-600/20 text-brand-400 border border-brand-500/30 px-2 py-1 rounded-lg">+ Imp Topic</button>
-                            <button onclick="removeChapter('${sub.id}',${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="addImpTopicPrompt('${sub.id}', ${uIdx})" class="text-[10px] bg-brand-600/20 text-brand-400 border border-brand-500/30 px-2 py-1 rounded-lg">+ Imp Topic</button>
+                            <button onclick="removeChapter('${sub.id}', ${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-1.5 pt-1">
@@ -412,15 +451,19 @@
         }
 
         function addChapterToSubject() {
-            const id = document.getElementById('syllabusSubjectSelect').value;
+            const select = document.getElementById('syllabusSubjectSelect');
             const input = document.getElementById('newChapterInput');
+            if(!select || !input) return;
+            const id = select.value;
             const chapterName = input.value.trim();
             const sub = subjects.find(s => s.id === id);
             if(sub && chapterName) {
                 sub.syllabus.push({ name: chapterName, impTopics: [] });
                 input.value = '';
                 renderSyllabusContent();
-                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                try {
+                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                } catch(e) {}
             }
         }
 
@@ -431,7 +474,9 @@
                 if(!sub.syllabus[uIdx].impTopics) sub.syllabus[uIdx].impTopics = [];
                 sub.syllabus[uIdx].impTopics.push(topic);
                 renderSyllabusContent();
-                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                try {
+                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                } catch(e) {}
             }
         }
 
@@ -440,7 +485,9 @@
             if(sub) {
                 sub.syllabus[uIdx].impTopics.splice(tIdx, 1);
                 renderSyllabusContent();
-                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                try {
+                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                } catch(e) {}
             }
         }
 
@@ -449,17 +496,21 @@
             if(sub) {
                 sub.syllabus.splice(uIdx, 1);
                 renderSyllabusContent();
-                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                try {
+                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+                } catch(e) {}
             }
         }
 
         async function sendGeminiMessage() {
             const input = document.getElementById('chatInput');
+            if(!input) return;
             const promptText = input.value.trim();
             if(!promptText) return;
 
             const userApiKey = localStorage.getItem('user_secure_gemini_key');
             const chatMessages = document.getElementById('chatMessages');
+            if(!chatMessages) return;
 
             chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]" style="word-break: break-word;">${promptText}</div></div>`;
             input.value = '';
@@ -494,5 +545,36 @@
         function handleImageDoubt(event) {
             const file = event.target.files[0];
             if(file) {
-                document.getElementById('chatMessages').innerHTML += `<div class="flex justify-end
-        
+                const chatMessages = document.getElementById('chatMessages');
+                if(!chatMessages) return;
+                
+                // Safe reader handling preventing mobile memory issues
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    chatMessages.innerHTML += `
+                        <div class="flex justify-end">
+                            <div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%] space-y-2">
+                                <span class="text-[10px] block font-semibold">[Scanned Doubt Image]</span>
+                                <img src="${e.target.result}" class="rounded-xl max-h-40 object-cover w-full">
+                            </div>
+                        </div>`;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    setTimeout(() => {
+                        chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">Image processed safely! Feel free to ask any specific question about this doubt.</div></div>`;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 800);
+                };
+                reader.onerror = function() {
+                    alert('Error reading uploaded image. Please try a smaller file or different format.');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Guaranteed execution on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+        });
+                                                                 </script>
+                                                                 
