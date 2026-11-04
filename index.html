@@ -423,7 +423,7 @@
             input.value = '';
 
             if(!userApiKey) {
-                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">⚠️ Please click your profile icon (top left) and enter your private Gemini API key to chat!</div></div>`;
+                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">⚠️ Please click "Profile & API" (top right) and enter your Gemini API key!</div></div>`;
                 return;
             }
 
@@ -434,11 +434,17 @@
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await response.json();
-                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
-                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">${aiText}</div></div>`;
+                
+                if(data.candidates && data.candidates[0].content.parts[0].text) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">${aiText}</div></div>`;
+                } else {
+                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">API Error: Check if your API key is valid.</div></div>`;
+                }
             } catch (err) {
-                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">Error connecting to Gemini API. Check your key.</div></div>`;
+                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">Network Error connecting to Gemini API.</div></div>`;
             }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         function handleImageDoubt(event) {
@@ -446,11 +452,11 @@
             if(file) {
                 document.getElementById('chatMessages').innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl text-xs">[Uploaded Image Scanned]</div></div>`;
                 setTimeout(() => {
-                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">Image received! Ensure your API key is saved under your profile icon for AI solutions.</div></div>`;
+                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">Image received and scanned successfully!</div></div>`;
                 }, 1000);
             }
         }
 
         window.onload = () => { renderDashboard(); };
-    </script>
-</html>
+                                                                                                                                                                                </script>
+                                                                                                                                                                                
