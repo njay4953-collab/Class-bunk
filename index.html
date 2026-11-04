@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClassBunk | Smart Attendance & Target Tracker</title>
-  <!-- SVG Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><path d='M25 42 L50 30 L75 42 L50 54 Z' fill='%23ffffff'/><path d='M33 48 L33 65 C33 70, 67 70, 67 65 L67 48' fill='none' stroke='%23ffffff' stroke-width='4' stroke-linecap='round'/><circle cx='75' cy='52' r='3' fill='%23fbbf24'/><path d='M75 55 L75 66' stroke='%23fbbf24' stroke-width='2'/></svg>">
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -14,99 +11,47 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#312e81',
-            },
-            bunk: {
-              safe: '#10b981',
-              warning: '#f59e0b',
-              danger: '#ef4444',
-            }
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+            bunk: { safe: '#10b981', warning: '#f59e0b', danger: '#ef4444' }
           },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          }
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
         }
       }
     }
   </script>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-    }
-    .glass-panel {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-card {
-      background: rgba(30, 41, 59, 0.5);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glass-card:hover {
-      border-color: rgba(99, 102, 241, 0.3);
-      transform: translateY(-2px);
-    }
-    .progress-ring-circle {
-      transition: stroke-dashoffset 0.5s ease-in-out;
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-    }
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.4);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.7);
-    }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; }
+    .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.25s ease; }
+    .glass-card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
+    .progress-ring-circle { transition: stroke-dashoffset 0.5s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 9999px; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
 
-  <!-- Header / Navigation -->
-  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 px-4 lg:px-8 py-3">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- SVG Logo -->
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
-          <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-          </svg>
+          <i class="fa-solid fa-graduation-cap text-white"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-black text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-100 bg-clip-text text-transparent">ClassBunk</h1>
+            <h1 class="font-black text-xl tracking-tight text-white">ClassBunk</h1>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-100 border border-brand-500/30">v2.0</span>
           </div>
-          <p class="text-xs text-slate-400 font-medium hidden sm:block">Smart Attendance & Target Engine</p>
+          <p class="text-xs text-slate-400">Smart Attendance & Target Engine</p>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
-        <button onclick="openModal('addSubjectModal')" class="flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-md shadow-brand-600/30 transition-all active:scale-95">
+        <button onclick="openModal('addSubjectModal')" class="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-md shadow-brand-600/30 transition-all">
           <i class="fa-solid fa-plus"></i>
           <span>Add Subject</span>
         </button>
@@ -117,15 +62,14 @@
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-grow space-y-8">
     
-    <!-- Top Summary Dashboard Metrics -->
+    <!-- Metrics Dashboard -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Overall Percentage Ring Card -->
       <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
         <div class="space-y-1">
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Attendance</p>
+          <p class="text-xs font-semibold text-slate-400 uppercase">Overall Attendance</p>
           <h2 id="overallPctText" class="text-3xl font-extrabold text-white">0%</h2>
           <p id="overallCountsText" class="text-xs text-slate-400">0 of 0 classes attended</p>
         </div>
@@ -138,5 +82,330 @@
         </div>
       </div>
 
-      <!-- Health Badge Card -->
-        
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold text-slate-400 uppercase">Overall Health</p>
+          <h2 id="overallHealthBadge" class="text-xl font-bold text-emerald-400">Analyzing...</h2>
+          <p class="text-xs text-slate-400">Based on target limits</p>
+        </div>
+        <div id="overallHealthIcon" class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
+        </div>
+      </div>
+
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold text-slate-400 uppercase">Available Bunks</p>
+          <h2 id="totalSafeBunks" class="text-3xl font-extrabold text-emerald-400">0</h2>
+          <p class="text-xs text-slate-400">Safe lectures across subjects</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-couch text-xl"></i>
+        </div>
+      </div>
+
+      <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold text-slate-400 uppercase">Action Needed</p>
+          <h2 id="totalRecoveryNeeded" class="text-3xl font-extrabold text-amber-400">0</h2>
+          <p class="text-xs text-slate-400">Must attend to recover</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <i class="fa-solid fa-person-running text-xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & Filters -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 glass-panel p-4 rounded-2xl">
+      <div class="relative w-full sm:w-72">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" id="searchInput" oninput="renderSubjects()" placeholder="Search subject..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <span class="text-xs text-slate-400 font-medium">Global Target:</span>
+        <select id="globalTargetSelect" onchange="updateGlobalTarget(this.value)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-semibold">
+          <option value="60">60%</option>
+          <option value="70">70%</option>
+          <option value="75" selected>75%</option>
+          <option value="80">80%</option>
+          <option value="85">85%</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Subject Grid -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-brand-500"></i>
+          <span>Enrolled Subjects</span>
+        </h2>
+        <span id="subjectCountBadge" class="text-xs text-slate-400">0 Subjects</span>
+      </div>
+      <div id="subjectGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="glass-panel border-t border-slate-800 mt-12 py-6 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+      <p>© ClassBunk. Designed for student freedom & smart academic planning.</p>
+      <button onclick="resetToSampleData()" class="hover:text-white transition-colors">Reset to Sample Data</button>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 relative">
+      <button onclick="closeModal('addSubjectModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <h3 class="text-lg font-bold text-white mb-1" id="modalTitle">Add Subject</h3>
+      <form id="subjectForm" onsubmit="handleSubjectSubmit(event)" class="space-y-4 mt-4">
+        <input type="hidden" id="subId">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Subject Name *</label>
+          <input type="text" id="subName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Total Held</label>
+            <input type="number" id="subTotal" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Attended</label>
+            <input type="number" id="subAttended" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Target %</label>
+          <input type="number" id="subTarget" min="1" max="100" value="75" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeModal('addSubjectModal')" class="px-4 py-2 text-xs text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white">Save</button>
+        </div>
+      </form>
+    </div>
+    </div>
+      <!-- JavaScript -->
+  <script>
+    const INITIAL_SAMPLE_DATA = [
+      { id: '1', name: 'Engineering Mathematics-I', total: 24, attended: 20, target: 75 },
+      { id: '2', name: 'Engineering Physics', total: 20, attended: 14, target: 75 },
+      { id: '3', name: 'Digital Electronics', total: 18, attended: 16, target: 75 },
+      { id: '4', name: 'Computer Programming', total: 15, attended: 10, target: 75 }
+    ];
+
+    let subjects = [];
+
+    function initApp() {
+      const stored = localStorage.getItem('classbunk_subjects_v2');
+      if (stored) {
+        try { subjects = JSON.parse(stored); } catch(e) { subjects = [...INITIAL_SAMPLE_DATA]; }
+      } else {
+        subjects = [...INITIAL_SAMPLE_DATA];
+        saveData();
+      }
+      renderSubjects();
+      updateDashboard();
+    }
+
+    function saveData() {
+      localStorage.setItem('classbunk_subjects_v2', JSON.stringify(subjects));
+    }
+
+    function resetToSampleData() {
+      if(confirm("Reset data to sample subjects?")) {
+        subjects = [...INITIAL_SAMPLE_DATA];
+        saveData();
+        initApp();
+      }
+    }
+
+    function openModal(id) {
+      if(id === 'addSubjectModal') {
+        document.getElementById('modalTitle').innerText = 'Add New Subject';
+        document.getElementById('subId').value = '';
+        document.getElementById('subjectForm').reset();
+        document.getElementById('subTarget').value = document.getElementById('globalTargetSelect').value;
+      }
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function editSubject(id) {
+      const sub = subjects.find(s => s.id === id);
+      if(!sub) return;
+      document.getElementById('modalTitle').innerText = 'Edit Subject';
+      document.getElementById('subId').value = sub.id;
+      document.getElementById('subName').value = sub.name;
+      document.getElementById('subTotal').value = sub.total;
+      document.getElementById('subAttended').value = sub.attended;
+      document.getElementById('subTarget').value = sub.target;
+      openModal('addSubjectModal');
+    }
+
+    function deleteSubject(id) {
+      if(confirm("Delete this subject?")) {
+        subjects = subjects.filter(s => s.id !== id);
+        saveData();
+        initApp();
+      }
+    }
+
+    function handleSubjectSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('subId').value;
+      const name = document.getElementById('subName').value.trim();
+      const total = parseInt(document.getElementById('subTotal').value) || 0;
+      const attended = parseInt(document.getElementById('subAttended').value) || 0;
+      const target = parseInt(document.getElementById('subTarget').value) || 75;
+
+      if (attended > total) { alert("Attended cannot exceed total!"); return; }
+
+      if (id) {
+        const index = subjects.findIndex(s => s.id === id);
+        if(index !== -1) subjects[index] = { id, name, total, attended, target };
+      } else {
+        subjects.push({ id: Date.now().toString(), name, total, attended, target });
+      }
+
+      saveData();
+      closeModal('addSubjectModal');
+      initApp();
+    }
+
+    function logClass(id, attendedInc, totalInc) {
+      const sub = subjects.find(s => s.id === id);
+      if(!sub) return;
+      sub.attended = Math.max(0, sub.attended + attendedInc);
+      sub.total = Math.max(0, sub.total + totalInc);
+      if(sub.attended > sub.total) sub.total = sub.attended;
+      saveData();
+      renderSubjects();
+      updateDashboard();
+    }
+
+    function calculateSubjectMetrics(total, attended, target) {
+      const pct = total === 0 ? 0 : (attended / total) * 100;
+      let safeBunks = 0, recoveryNeeded = 0;
+      if (pct >= target) {
+        safeBunks = Math.floor((100 * attended - target * total) / target);
+        if (safeBunks < 0) safeBunks = 0;
+      } else {
+        if (target < 100) recoveryNeeded = Math.ceil((target * total - 100 * attended) / (100 - target));
+        if (recoveryNeeded < 0) recoveryNeeded = 0;
+      }
+      return { pct, safeBunks, recoveryNeeded };
+    }
+
+    function updateGlobalTarget(val) {
+      const targetVal = parseInt(val);
+      subjects.forEach(s => s.target = targetVal);
+      saveData();
+      initApp();
+    }
+
+    function renderSubjects() {
+      const grid = document.getElementById('subjectGrid');
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = subjects.filter(s => s.name.toLowerCase().includes(query));
+
+      document.getElementById('subjectCountBadge').innerText = `${filtered.length} Subject${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full p-12 text-center glass-panel rounded-2xl"><p class="text-xs text-slate-400">No subjects found.</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(sub => {
+        const m = calculateSubjectMetrics(sub.total, sub.attended, sub.target);
+        const isSafe = m.pct >= sub.target;
+        const color = isSafe ? 'emerald' : 'rose';
+        const offset = 226.19 - (226.19 * Math.min(m.pct, 100)) / 100;
+
+        return `
+          <div class="glass-card p-5 rounded-2xl flex flex-col justify-between space-y-5">
+            <div>
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <h3 class="font-bold text-white text-base">${sub.name}</h3>
+                  <span class="text-[10px] font-semibold text-slate-400">Target: ${sub.target}%</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="editSubject('${sub.id}')" class="p-1.5 text-slate-400 hover:text-white"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                  <button onclick="deleteSubject('${sub.id}')" class="p-1.5 text-slate-400 hover:text-rose-400"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 my-4">
+                <div class="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-20 h-20 transform -rotate-90">
+                    <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.08)" stroke-width="7" fill="transparent"/>
+                    <circle class="progress-ring-circle" cx="40" cy="40" r="36" stroke="${isSafe ? '#10b981' : '#ef4444'}" stroke-width="7" stroke-dasharray="226.19" stroke-dashoffset="${offset}" stroke-linecap="round" fill="transparent"/>
+                  </svg>
+                  <span class="absolute font-black text-sm text-white">${m.pct.toFixed(1)}%</span>
+                </div>
+                <div class="space-y-1.5 flex-grow">
+                  <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">Attended:</span>
+                    <span class="font-bold text-white">${sub.attended} / ${sub.total}</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-${color}-500 h-full rounded-full" style="width: ${Math.min(m.pct, 100)}%"></div>
+                  </div>
+                  <p class="text-[11px] font-medium text-${color}-400 pt-1">
+                    ${isSafe ? `<i class="fa-solid fa-circle-check mr-1"></i>${m.safeBunks} safe bunk(s)` : `<i class="fa-solid fa-triangle-exclamation mr-1"></i>Attend next ${m.recoveryNeeded}`}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800">
+              <button onclick="logClass('${sub.id}', 1, 1)" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 font-semibold text-xs py-2 rounded-xl">Attended</button>
+              <button onclick="logClass('${sub.id}', 0, 1)" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-semibold text-xs py-2 rounded-xl">Missed</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateDashboard() {
+      if (subjects.length === 0) {
+        document.getElementById('overallPctText').innerText = '0%';
+        document.getElementById('overallCountsText').innerText = '0 of 0 classes attended';
+        document.getElementById('overallHealthBadge').innerText = 'No Subjects';
+        document.getElementById('totalSafeBunks').innerText = '0';
+        document.getElementById('totalRecoveryNeeded').innerText = '0';
+        return;
+      }
+
+      let totalHeld = 0, totalAttended = 0, safeBunksSum = 0, recoverySum = 0, lowCount = 0;
+      subjects.forEach(sub => {
+        totalHeld += sub.total;
+        totalAttended += sub.attended;
+        const m = calculateSubjectMetrics(sub.total, sub.attended, sub.target);
+        safeBunksSum += m.safeBunks;
+        recoverySum += m.recoveryNeeded;
+        if(m.pct < sub.target) lowCount++;
+      });
+      const overallPct = totalHeld === 0 ? 0 : (totalAttended / totalHeld) * 100;
+      document.getElementById('overallPctText').innerText = `${overallPct.toFixed(1)}%`;
+      document.getElementById('overallCountsText').innerText = `${totalAttended} of ${totalHeld} classes attended`;
+      document.getElementById('overallProgressCircle').style.strokeDashoffset = 163.36 - (163.36 * Math.min(overallPct, 100)) / 100;
+      
+      const healthBadge = document.getElementById('overallHealthBadge');
+      if(lowCount === 0) { healthBadge.innerText = 'Excellent'; healthBadge.className = 'text-xl font-bold text-emerald-400'; }
+      else { healthBadge.innerText = 'At Risk'; healthBadge.className = 'text-xl font-bold text-amber-400'; }
+
+      document.getElementById('totalSafeBunks').innerText = safeBunksSum;
+      document.getElementById('totalRecoveryNeeded').innerText = recoverySum;
+    }
+
+    // Run immediately
+    initApp();
+  </script>
+</body>
+</html>
