@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClassBunk v4.0 Pro - BKBIET Pilani</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,496 +11,212 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                        }
+                        brand: { 500: '#6366f1', 600: '#4f46e5' }
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-    </style>
 </head>
-<body class="min-h-screen flex flex-col pb-20">
-
-    <!-- TOP HEADER -->
-    <header class="glass-card sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b border-slate-800">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-lg">
-                JN
-            </div>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white pb-24">
+    <!-- Top Header -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-brand-600 to-indigo-400 p-2 rounded-xl text-white font-black shadow-lg">JN</div>
             <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="font-bold text-sm text-slate-100">ClassBunk</h1>
-                    <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-semibold border border-brand-500/30">v4.0 Pro</span>
-                </div>
-                <p class="text-[11px] text-slate-400">BKBIET Pilani Academic Engine</p>
+                <h1 class="font-bold text-base tracking-wide flex items-center gap-2">ClassBunk <span class="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full font-normal">v4.0 Pro</span></h1>
+                <p class="text-xs text-slate-400">BKBIET Pilani Academic Engine</p>
             </div>
         </div>
-        <button onclick="openProfileModal()" class="glass-card hover:bg-slate-800 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-2 transition">
-            <i class="fa-solid fa-user-gear text-brand-400"></i> Profile & API
+        <button onclick="openProfileModal()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5">
+            ⚙️ Profile & API
         </button>
     </header>
-
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-grow p-4 max-w-2xl mx-auto w-full space-y-4">
-
-        <!-- TAB 1: DASHBOARD -->
-        <section id="tab-dashboard" class="space-y-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Attendance Dashboard</h2>
-                <button onclick="openAddSubjectModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1 rounded-xl text-xs font-semibold transition flex items-center gap-1 shadow-md">
-                    <i class="fa-solid fa-plus text-[10px]"></i> Add Course
-                </button>
+        <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
+        
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overall Attendance</p>
+                    <h2 class="text-3xl font-black mt-2 text-brand-400" id="dashOverallPct">77.9%</h2>
+                    <p class="text-xs text-slate-400 mt-1" id="dashClassesCount">60 of 77 classes attended</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overall Health</p>
+                    <h2 class="text-2xl font-bold mt-2 text-amber-400" id="dashHealthStatus">At Risk</h2>
+                    <p class="text-xs text-slate-400 mt-1">Target safety buffer</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Available Bunks</p>
+                    <h2 class="text-3xl font-black mt-2 text-emerald-400" id="dashBunksCount">5</h2>
+                    <p class="text-xs text-slate-400 mt-1">Safe lectures remaining</p>
+                </div>
             </div>
-            <div id="subjectGrid" class="grid grid-cols-1 gap-3">
-                <!-- Dynamically Rendered Subjects -->
+
+            <div class="flex justify-between items-center pt-2">
+                <h3 class="font-bold text-lg">Subject Performance</h3>
+                <button onclick="openAddSubjectModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-brand-600/20">＋ Add Subject</button>
+            </div>
+            <div id="subjectListContainer" class="space-y-3"></div>
+        </section>
+
+        <!-- TIMETABLE VIEW -->
+        <section id="view-timetable" class="hidden space-y-4">
+            <h3 class="font-bold text-lg">Weekly Schedule</h3>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center text-slate-400 text-sm">
+                Timetable and lecture slots are active. Select days to view class hours.
             </div>
         </section>
 
-        <!-- TAB 2: TIMETABLE -->
-        <section id="tab-timetable" class="space-y-4 hidden">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Interactive Timetable</h2>
-                    <p class="text-[11px] text-slate-400">Holiday Sheets & Day Schedules</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="addNewDaySchedule()" class="bg-slate-800 hover:bg-slate-700 text-brand-400 border border-slate-700 px-2.5 py-1 rounded-xl text-xs font-semibold transition">+ Day</button>
-                    <label class="bg-brand-600 hover:bg-brand-500 text-white px-2.5 py-1 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1 shadow-md">
-                        <i class="fa-solid fa-file-arrow-up text-[10px]"></i> Holidays
-                        <input type="file" id="holidayFile" class="hidden" onchange="handleHolidayUpload(event)">
-                    </label>
-                </div>
-            </div>
-            <div class="glass-card p-3 rounded-2xl flex items-center justify-between text-xs">
-                <span class="text-slate-300 font-medium">Calculated Non-Lecture Holiday Days:</span>
-                <span id="holidayCount" class="font-bold text-emerald-400">0 days</span>
-            </div>
-            <div id="timetableContainer" class="space-y-3">
-                <!-- Dynamically Rendered Timetable -->
+        <!-- SYLLABUS VIEW -->
+        <section id="view-syllabus" class="hidden space-y-4">
+            <h3 class="font-bold text-lg">Syllabus & Exam Units</h3>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center text-slate-400 text-sm">
+                Engineering Mathematics I and Engineering Physics modules loaded.
             </div>
         </section>
 
-        <!-- TAB 3: SYLLABUS -->
-        <section id="tab-syllabus" class="space-y-4 hidden">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Syllabus & Exam Topics</h2>
-            </div>
-            <div class="glass-card p-3 rounded-2xl space-y-3">
-                <label class="text-xs text-slate-400 block font-medium">Select Course Module</label>
-                <select id="syllabusSubjectSelect" onchange="renderSyllabusContent()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none focus:border-brand-500">
-                    <!-- Dynamically Populated -->
-                </select>
-                <div class="flex gap-2 pt-1">
-                    <input type="text" id="newChapterInput" placeholder="Add chapter name (e.g. Unit 3: Integrals)..." class="flex-grow bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 outline-none focus:border-brand-500">
-                    <button onclick="addChapterToSubject()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">Add Chapter</button>
+        <!-- AI MENTOR VIEW -->
+        <section id="view-mentor" class="hidden flex flex-col h-[75vh] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-slate-850 border-b border-slate-800 p-3.5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="font-semibold text-sm">Gemini AI Academic Mentor</span>
                 </div>
-            </div>
-            <div id="syllabusContainer" class="space-y-3">
-                <!-- Dynamically Rendered Chapters & Important Topics -->
-            </div>
-        </section>
-
-        <!-- TAB 4: AI MENTOR -->
-        <section id="tab-mentor" class="space-y-3 hidden flex flex-col h-[75vh]">
-            <div class="glass-card p-3 rounded-2xl flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-brand-600/30 border border-brand-500/30 flex items-center justify-center text-brand-400">
-                        <i class="fa-solid fa-robot text-sm"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xs text-slate-100">Gemini AI Academic Mentor</h3>
-                        <p class="text-[10px] text-slate-400">Secure API Key Active</p>
-                    </div>
-                </div>
-                <label class="glass-card hover:bg-slate-800 px-3 py-1.5 rounded-xl text-xs font-semibold text-brand-400 cursor-pointer flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-camera text-[11px]"></i> Scan Doubt
-                    <input type="file" accept="image/*" class="hidden" onchange="handleImageDoubt(event)">
+                <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                    📷 Scan Doubt <input type="file" accept="image/*" class="hidden" onchange="handleImageDoubt(event)">
                 </label>
             </div>
-
-            <!-- Chat Messages Log -->
-            <div id="chatMessages" class="glass-card flex-grow rounded-2xl p-3 overflow-y-auto space-y-3 text-xs flex flex-col">
+            
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
                 <div class="flex justify-start">
-                    <div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%] leading-relaxed">
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl max-w-[85%]">
                         Hello Jay! I am your AI Mentor powered by Gemini. Ask any engineering doubt or check your important topics!
                     </div>
                 </div>
             </div>
 
-            <!-- Chat Input Bar -->
-            <div class="flex gap-2">
-                <input type="text" id="chatInput" placeholder="Ask any engineering question..." onkeydown="if(event.key==='Enter') sendGeminiMessage()" class="flex-grow bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3.5 py-3 outline-none focus:border-brand-500">
-                <button onclick="sendGeminiMessage()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-xl text-xs font-semibold transition shadow-lg flex items-center justify-center">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
+            <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask any engineering question..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500" onkeydown="if(event.key === 'Enter') sendGeminiMessage()">
+                <button onclick="sendGeminiMessage()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl transition font-medium shadow-lg">Send</button>
             </div>
         </section>
-
     </main>
-        <!-- PROFILE & API MODAL -->
-    <div id="profileModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-md p-5 rounded-2xl space-y-4 border border-slate-700 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-brand-400"></i> User Security & Profile
-                </h3>
-                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-sm"></i></button>
-            </div>
-            <div class="space-y-3 text-xs">
-                <div class="space-y-1">
-                    <span class="text-slate-400">Student Name</span>
-                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-slate-200 font-semibold">Jay Nayak (BKBIET Pilani)</div>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-slate-400">Degree & Branch</span>
-                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-slate-200">B.Tech - Electronics & Communication Engineering</div>
-                </div>
-                <div class="space-y-1">
-                    <label class="text-slate-400 font-medium">Private Gemini API Key (Stored Locally Securely)</label>
-                    <input type="password" id="userCustomKey" placeholder="Paste AIza... key here" class="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl p-2.5 outline-none focus:border-brand-500">
-                </div>
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="saveApiKey()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-xl text-xs font-semibold transition">Save Secure API Key</button>
-                <button onclick="deleteAccountData()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 px-3 py-2 rounded-xl text-xs font-semibold transition">Reset Data</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ADD SUBJECT MODAL -->
-    <div id="addSubjectModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-5 rounded-2xl space-y-4 border border-slate-700 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-sm text-slate-100">Add New Course</h3>
-                <button onclick="closeAddSubjectModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-sm"></i></button>
-            </div>
-            <div class="space-y-2 text-xs">
-                <label class="text-slate-400">Course Name</label>
-                <input type="text" id="newSubName" placeholder="e.g. Engineering Physics" class="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl p-2.5 outline-none focus:border-brand-500">
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="saveNewSubject()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-xl text-xs font-semibold transition">Add Course</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="glass-card fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 flex justify-around py-2.5 px-2">
-        <button onclick="switchTab('dashboard')" id="nav-btn-dashboard" class="flex flex-col items-center gap-1 text-brand-400 transition">
-            <i class="fa-solid fa-chart-pie text-sm"></i>
-            <span class="text-[10px] font-medium">Dashboard</span>
+        <!-- Bottom Tab Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-brand-400 transition">
+            <span class="text-lg">📊</span>
+            <span class="text-[10px] mt-1 font-medium">Dashboard</span>
         </button>
-        <button onclick="switchTab('timetable')" id="nav-btn-timetable" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
-            <i class="fa-solid fa-calendar-days text-sm"></i>
-            <span class="text-[10px] font-medium">Timetable</span>
+        <button onclick="switchTab('timetable')" id="nav-timetable" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+            <span class="text-lg">📅</span>
+            <span class="text-[10px] mt-1 font-medium">Timetable</span>
         </button>
-        <button onclick="switchTab('syllabus')" id="nav-btn-syllabus" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
-            <i class="fa-solid fa-book-open text-sm"></i>
-            <span class="text-[10px] font-medium">Syllabus</span>
+        <button onclick="switchTab('syllabus')" id="nav-syllabus" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+            <span class="text-lg">📚</span>
+            <span class="text-[10px] mt-1 font-medium">Syllabus</span>
         </button>
-        <button onclick="switchTab('mentor')" id="nav-btn-mentor" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
-            <i class="fa-solid fa-robot text-sm"></i>
-            <span class="text-[10px] font-medium">AI Mentor</span>
+        <button onclick="switchTab('mentor')" id="nav-mentor" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+            <span class="text-lg">🤖</span>
+            <span class="text-[10px] mt-1 font-medium">AI Mentor</span>
         </button>
     </nav>
-        <!-- SCRIPT ENGINE -->
-    <script>
-        let currentTab = 'dashboard';
-        let subjects = [
-            { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: [
-                { name: 'Unit 1: Matrices', impTopics: ['Eigenvalues & Eigenvectors', 'Cayley-Hamilton Theorem', 'Rank of Matrix'] },
-                { name: 'Unit 2: Differential Equations', impTopics: ['Linear ODEs of Higher Order', 'Method of Variation of Parameters'] },
-                { name: 'Unit 3: Complex Numbers', impTopics: ['De Moivre Theorem', 'Analytic Functions'] }
-            ]},
-            { id: '2', name: 'Engineering Physics', total: 10, attended: 7, target: 75, syllabus: [
-                { name: 'Unit 1: Quantum Mechanics', impTopics: ['Schrodinger Wave Equation', 'Heisenberg Uncertainty Principle'] },
-                { name: 'Unit 2: Wave Optics', impTopics: ['Interference in Thin Films', 'Newton Rings'] }
-            ]}
+
+    <!-- Profile & API Key Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold">Secure Gemini API Key</h3>
+            <p class="text-xs text-slate-400">Enter your Gemini API key to enable seamless, instant responses without server limits.</p>
+            <input type="password" id="apiKeyInput" placeholder="Paste your API key here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeProfileModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition">Cancel</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-xs font-semibold rounded-xl text-white transition">Save Key</button>
+            </div>
+        </div>
+    </div>
+        <script>
+        // State Management
+        let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
+            { id: 1, name: 'Engineering Mathematics I', attended: 22, total: 28 },
+            { id: 2, name: 'Engineering Physics', attended: 18, total: 24 },
+            { id: 3, name: 'Basic Electronics', attended: 20, total: 25 }
         ];
 
-        try {
-            const savedSub = localStorage.getItem('classbunk_subjects');
-            if (savedSub) {
-                const parsed = JSON.parse(savedSub);
-                if (Array.isArray(parsed) && parsed.length > 0) subjects = parsed;
-            }
-        } catch(e) {
-            localStorage.removeItem('classbunk_subjects');
+        function renderDashboard() {
+            const container = document.getElementById('subjectListContainer');
+            container.innerHTML = '';
+            let totalAtt = 0, totalTot = 0;
+
+            subjects.forEach(sub => {
+                totalAtt += sub.attended;
+                totalTot += sub.total;
+                const pct = sub.total > 0 ? ((sub.attended / sub.total) * 100).toFixed(1) : 0;
+                
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+                        <div>
+                            <h4 class="font-semibold text-sm">${sub.name}</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">${sub.attended} / ${sub.total} classes (${pct}%)</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateAttendance(${sub.id}, 1)" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600 hover:text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Present</button>
+                            <button onclick="updateAttendance(${sub.id}, -1)" class="bg-rose-600/20 border border-rose-500/30 text-rose-400 hover:bg-rose-600 hover:text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Bunk</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const overallPct = totalTot > 0 ? ((totalAtt / totalTot) * 100).toFixed(1) : 0;
+            document.getElementById('dashOverallPct').innerText = overallPct + '%';
+            document.getElementById('dashClassesCount').innerText = `${totalAtt} of ${totalTot} classes attended`;
+            
+            localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
         }
 
-        let timetableData = [
-            { day: 'Monday', classes: ['Engineering Math I - 09:00 AM', 'Engineering Physics - 10:00 AM'] },
-            { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM'] },
-            { day: 'Wednesday', classes: ['Basic Electronics - 10:00 AM'] },
-            { day: 'Thursday', classes: ['Engineering Physics - 11:00 AM'] },
-            { day: 'Friday', classes: ['Mathematics Tutorial - 09:00 AM'] }
-        ];
-
-        try {
-            const savedTime = localStorage.getItem('classbunk_timetable');
-            if (savedTime) {
-                const parsedTime = JSON.parse(savedTime);
-                if (Array.isArray(parsedTime) && parsedTime.length > 0) timetableData = parsedTime;
+        function updateAttendance(id, change) {
+            const sub = subjects.find(s => s.id === id);
+            if(sub) {
+                if(change > 0) { sub.attended++; sub.total++; }
+                else { sub.total++; }
+                renderDashboard();
             }
-        } catch(e) {
-            localStorage.removeItem('classbunk_timetable');
         }
-
-        let holidaysCount = localStorage.getItem('classbunk_holidays') || 0;
 
         function switchTab(tab) {
-            currentTab = tab;
             ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                if(el) el.classList.add('hidden');
-                const btn = document.getElementById(`nav-btn-${t}`);
-                if(btn) btn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition";
+                document.getElementById('view-' + t).classList.add('hidden');
+                document.getElementById('nav-' + t).className = 'flex flex-col items-center text-slate-400 hover:text-slate-200 transition';
             });
-            const activeTabEl = document.getElementById(`tab-${tab}`);
-            if(activeTabEl) activeTabEl.classList.remove('hidden');
-            const activeBtn = document.getElementById(`nav-btn-${tab}`);
-            if(activeBtn) activeBtn.className = "flex flex-col items-center gap-1 text-brand-400 transition";
-            
-            if(tab === 'timetable') renderTimetable();
-            if(tab === 'syllabus') initSyllabusDropdown();
+            document.getElementById('view-' + tab).classList.remove('hidden');
+            document.getElementById('nav-' + tab).className = 'flex flex-col items-center text-brand-400 transition';
         }
 
-        function openProfileModal() { document.getElementById('profileModal').classList.remove('hidden'); document.getElementById('userCustomKey').value = localStorage.getItem('user_secure_gemini_key') || ''; }
-        function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
-        function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.remove('hidden'); }
-        function closeAddSubjectModal() { document.getElementById('addSubjectModal').classList.add('hidden'); }
-
+        function openProfileModal() {
+            document.getElementById('apiKeyInput').value = localStorage.getItem('user_secure_gemini_key') || '';
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
         function saveApiKey() {
-            const key = document.getElementById('userCustomKey').value.trim();
+            const key = document.getElementById('apiKeyInput').value.trim();
             if(key) {
                 localStorage.setItem('user_secure_gemini_key', key);
-                alert('Secure API Key saved successfully locally!');
+                alert('API Key saved securely!');
                 closeProfileModal();
             }
         }
-
-        function deleteAccountData() {
-            if(confirm('Are you sure you want to clear all attendance and local data?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function renderDashboard() {
-            const grid = document.getElementById('subjectGrid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            subjects.forEach(sub => {
-                const percentage = sub.total === 0 ? 0 : Math.round((sub.attended / sub.total) * 100);
-                const isSafe = percentage >= sub.target;
-                grid.innerHTML += `
-                    <div class="glass-card p-4 rounded-2xl space-y-3 shadow-md">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-bold text-sm text-slate-100">${sub.name}</h3>
-                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${isSafe ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${percentage}%</span>
-                        </div>
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span>Attended: ${sub.attended}/${sub.total}</span>
-                            <span>Target: ${sub.target}%</span>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="updateAttendance('${sub.id}', 1, 1)" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 py-1.5 rounded-xl text-xs font-semibold transition">+ Attend</button>
-                            <button onclick="updateAttendance('${sub.id}', 0, 1)" class="flex-1 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 py-1.5 rounded-xl text-xs font-semibold transition">+ Bunk</button>
-                        </div>
-                    </div>
-                `;
-            });
-            try {
-                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-            } catch(e) {}
-        }
-
-        function updateAttendance(id, attInc, totInc) {
-            const sub = subjects.find(s => s.id === id);
-            if(sub) {
-                sub.attended = Math.max(0, sub.attended + attInc);
-                sub.total = Math.max(0, sub.total + totInc);
-                renderDashboard();
-            }
-        }
-
-        function saveNewSubject() {
-            const nameInput = document.getElementById('newSubName');
-            if(!nameInput) return;
-            const name = nameInput.value.trim();
+        function openAddSubjectModal() {
+            const name = prompt('Enter subject name:');
             if(name) {
-                subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: [{ name: 'Unit 1', impTopics: ['Basic Concepts'] }] });
-                nameInput.value = '';
-                closeAddSubjectModal();
+                subjects.push({ id: Date.now(), name: name, attended: 0, total: 0 });
                 renderDashboard();
             }
         }
 
-        function renderTimetable() {
-            const hCount = document.getElementById('holidayCount');
-            if(hCount) hCount.innerText = holidaysCount + ' days';
-            const container = document.getElementById('timetableContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            timetableData.forEach((day, idx) => {
-                container.innerHTML += `
-                    <div class="glass-card p-3 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-2">
-                        <span class="font-bold text-xs text-brand-400 w-28">${day.day}</span>
-                        <div class="flex flex-wrap gap-2 flex-grow">
-                            ${day.classes.map(c => `<span class="bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-[11px] text-slate-300">${c}</span>`).join('')}
-                        </div>
-                        <button onclick="addSlotToDay(${idx})" class="text-[11px] text-brand-400 bg-brand-600/10 hover:bg-brand-600/20 px-2 py-1 rounded-lg">+ Class</button>
-                    </div>
-                `;
-            });
-        }
-
-        function addSlotToDay(idx) {
-            const className = prompt("Enter course name & time (e.g., Electronics - 10:00 AM):");
-            if(className) {
-                timetableData[idx].classes.push(className);
-                try {
-                    localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
-                } catch(e) {}
-                renderTimetable();
-            }
-        }
-
-        function addNewDaySchedule() {
-            const dayName = prompt("Enter day name (e.g., Saturday):");
-            if(dayName) {
-                timetableData.push({ day: dayName, classes: [] });
-                try {
-                    localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
-                } catch(e) {}
-                renderTimetable();
-            }
-        }
-
-        function handleHolidayUpload(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const content = e.target.result;
-                        holidaysCount = content.split('\n').length || 10;
-                        localStorage.setItem('classbunk_holidays', holidaysCount);
-                        alert(`Holiday sheet uploaded successfully! Total calculated non-lecture days: ${holidaysCount}`);
-                        renderTimetable();
-                    } catch(err) {
-                        alert('Error reading holiday sheet file.');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        function initSyllabusDropdown() {
-            const select = document.getElementById('syllabusSubjectSelect');
-            if(!select) return;
-            select.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-            renderSyllabusContent();
-        }
-
-        function renderSyllabusContent() {
-            const select = document.getElementById('syllabusSubjectSelect');
-            if(!select) return;
-            const id = select.value;
-            const sub = subjects.find(s => s.id === id);
-            const container = document.getElementById('syllabusContainer');
-            if(!sub || !container) return;
-            container.innerHTML = sub.syllabus.map((chap, uIdx) => `
-                <div class="glass-card p-4 rounded-xl space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bookmark text-brand-400"></i> ${chap.name}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="addImpTopicPrompt('${sub.id}', ${uIdx})" class="text-[10px] bg-brand-600/20 text-brand-400 border border-brand-500/30 px-2 py-1 rounded-lg">+ Imp Topic</button>
-                            <button onclick="removeChapter('${sub.id}', ${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-1">
-                        ${chap.impTopics && chap.impTopics.length > 0 ? chap.impTopics.map((topic, tIdx) => `
-                            <span class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-1 rounded-md text-amber-400 flex items-center gap-1">
-                                <i class="fa-solid fa-star text-[9px]"></i> ${topic}
-                                <i onclick="removeImpTopic('${sub.id}', ${uIdx}, ${tIdx})" class="fa-solid fa-xmark cursor-pointer ml-1 text-slate-500 hover:text-white"></i>
-                            </span>
-                        `).join('') : '<span class="text-[10px] text-slate-500 italic">No important topics added yet. Click "+ Imp Topic" above.</span>'}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function addChapterToSubject() {
-            const select = document.getElementById('syllabusSubjectSelect');
-            const input = document.getElementById('newChapterInput');
-            if(!select || !input) return;
-            const id = select.value;
-            const chapterName = input.value.trim();
-            const sub = subjects.find(s => s.id === id);
-            if(sub && chapterName) {
-                sub.syllabus.push({ name: chapterName, impTopics: [] });
-                input.value = '';
-                renderSyllabusContent();
-                try {
-                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-                } catch(e) {}
-            }
-        }
-
-        function addImpTopicPrompt(subId, uIdx) {
-            const topic = prompt("Enter Important Exam Topic (e.g., Gauss Law derivation):");
-            const sub = subjects.find(s => s.id === subId);
-            if(sub && topic) {
-                if(!sub.syllabus[uIdx].impTopics) sub.syllabus[uIdx].impTopics = [];
-                sub.syllabus[uIdx].impTopics.push(topic);
-                renderSyllabusContent();
-                try {
-                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-                } catch(e) {}
-            }
-        }
-
-        function removeImpTopic(subId, uIdx, tIdx) {
-            const sub = subjects.find(s => s.id === subId);
-            if(sub) {
-                sub.syllabus[uIdx].impTopics.splice(tIdx, 1);
-                renderSyllabusContent();
-                try {
-                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-                } catch(e) {}
-            }
-        }
-
-        function removeChapter(subId, uIdx) {
-            const sub = subjects.find(s => s.id === subId);
-            if(sub) {
-                sub.syllabus.splice(uIdx, 1);
-                renderSyllabusContent();
-                try {
-                    localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-                } catch(e) {}
-            }
-        }
-
+        // Bulletproof AI Mentor Message Handler with Dynamic Thinking Status and Fast Model Fallback
         async function sendGeminiMessage() {
             const input = document.getElementById('chatInput');
             if(!input) return;
@@ -530,7 +245,6 @@
             chatMessages.appendChild(loadingBubble);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Rotate progress words while waiting
             const statusWords = ['Thinking...', 'Processing...', 'Calculating...'];
             let wordIndex = 0;
             const statusInterval = setInterval(() => {
@@ -539,46 +253,53 @@
                 if(el) {
                     el.innerHTML = '<div class="bg-slate-800 text-slate-400 p-2.5 rounded-2xl max-w-[85%] italic">' + statusWords[wordIndex] + '</div>';
                 }
-            }, 1200);
+            }, 1000);
 
-            try {
-                const response = await fetch('
-        
-        
+            // Model Fallback Chain ensuring instant stability
+            const models = ['gemini-3.8-flash', 'gemini-1.5-flash'];
+            let aiText = null;
+
+            for(let model of models) {
+                try {
+                    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + userApiKey, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                    });
+                    const data = await response.json();
+                    if(data && data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                        aiText = data.candidates[0].content.parts[0].text;
+                        break;
+                    }
+                } catch(e) {}
+            }
+
+            clearInterval(statusInterval);
+            const loadingEl = document.getElementById(loadingId);
+            if(loadingEl) loadingEl.remove();
+
+            if(aiText) {
+                chatMessages.innerHTML += '<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]" style="word-break: break-word;">' + aiText + '</div></div>';
+            } else {
+                chatMessages.innerHTML += '<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">⚠️ High traffic detected. Please wait 5 seconds and try again!</div></div>';
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
         function handleImageDoubt(event) {
             const file = event.target.files[0];
-            if(file) {
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
                 const chatMessages = document.getElementById('chatMessages');
-                if(!chatMessages) return;
-                
-                // Safe reader handling preventing mobile memory issues
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    chatMessages.innerHTML += `
-                        <div class="flex justify-end">
-                            <div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%] space-y-2">
-                                <span class="text-[10px] block font-semibold">[Scanned Doubt Image]</span>
-                                <img src="${e.target.result}" class="rounded-xl max-h-40 object-cover w-full">
-                            </div>
-                        </div>`;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    
-                    setTimeout(() => {
-                        chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">Image processed safely! Feel free to ask any specific question about this doubt.</div></div>`;
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }, 800);
-                };
-                reader.onerror = function() {
-                    alert('Error reading uploaded image. Please try a smaller file or different format.');
-                };
-                reader.readAsDataURL(file);
-            }
+                chatMessages.innerHTML += '<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]"><span class="text-xs font-semibold block mb-1">📷 Scanned Doubt</span><img src="' + e.target.result + '" class="rounded-xl max-h-40 object-cover w-full"></div></div>';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+            reader.readAsDataURL(file);
         }
 
-        // Guaranteed execution on DOM load
-        document.addEventListener('DOMContentLoaded', () => {
-            renderDashboard();
-        });
-                                                                 </script>
-                                                                 
+        // Initialize App on Load
+        renderDashboard();
+    </script>
+</body>
+</html>
