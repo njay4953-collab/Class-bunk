@@ -4,46 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClassBunk v4.0 Pro - Cloud Academic Engine</title>
-    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } }
-                }
-            }
+            theme: { extend: { colors: { brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } } } }
         }
     </script>
     <style>
-        .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card { background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between pb-20 md:pb-0">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between pb-24 md:pb-6">
 
     <!-- Top Navigation Header -->
     <header class="glass-panel sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b border-slate-800">
         <div class="flex items-center space-x-3">
-            <!-- Profile Icon with Login/Signup Trigger -->
-            <div onclick="openAuthModal()" class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center cursor-pointer font-bold shadow-lg text-white" id="userAvatarBtn">
+            <div onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center cursor-pointer font-bold shadow-lg text-white overflow-hidden border border-brand-500/40" id="headerAvatar">
                 JN
             </div>
             <div>
                 <h1 class="font-bold text-base flex items-center gap-2">ClassBunk <span class="text-[10px] bg-brand-600/30 text-brand-400 border border-brand-500/30 px-2 py-0.5 rounded-full">v4.0 Pro</span></h1>
-                <p class="text-xs text-slate-400">Cloud Academic Engine</p>
+                <p class="text-xs text-slate-400">BKBIET Pilani Academic Engine</p>
             </div>
         </div>
-        <div class="flex items-center space-x-2">
-            <button onclick="openAuthModal()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-user-lock"></i> <span id="authBtnText">Login / Signup</span>
-            </button>
-        </div>
+        <button onclick="openProfileModal()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5">
+            <i class="fa-solid fa-user-gear"></i> Profile & API
+        </button>
     </header>
-
-    <!-- Main Content Container -->
+        <!-- Main Content Container -->
     <main class="max-w-4xl w-full mx-auto p-4 flex-grow space-y-6">
 
         <!-- TAB 1: DASHBOARD -->
@@ -54,31 +45,39 @@
                     <i class="fa-solid fa-plus"></i> Add Subject
                 </button>
             </div>
-            <!-- Dynamic Subject Grid -->
             <div id="subjectGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
-        <!-- TAB 2: TIMETABLE -->
+        <!-- TAB 2: TIMETABLE & HOLIDAY CALCULATOR -->
         <section id="tab-timetable" class="hidden space-y-4">
             <div class="glass-panel p-5 rounded-2xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-calendar-days text-brand-400"></i> Weekly Timetable</h2>
-                    <span class="text-xs text-slate-400">BKBIET Pilani Schedule</span>
+                    <h2 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-calendar-days text-brand-400"></i> Timetable & Lecture Calculator</h2>
+                    <label class="cursor-pointer bg-brand-600/20 text-brand-400 border border-brand-500/30 text-xs px-3 py-1.5 rounded-xl font-semibold transition">
+                        <i class="fa-solid fa-upload"></i> Upload Holiday Sheet
+                        <input type="file" accept=".json,.csv,.txt" class="hidden" onchange="handleHolidayUpload(event)">
+                    </label>
                 </div>
-                <div id="timetableContainer" class="space-y-3">
-                    <!-- Dynamic Timetable Loaded via JS -->
+                <div class="space-y-3">
+                    <div class="text-xs text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                        <span>Total Academic Holidays Loaded: <strong id="holidayCount" class="text-white">0 days</strong></span>
+                        <button onclick="openAddTimetableModal()" class="text-brand-400 hover:underline font-semibold">+ Add Schedule Slot</button>
+                    </div>
+                    <div id="timetableContainer" class="space-y-3"></div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 3: SYLLABUS & PYQS -->
+        <!-- TAB 3: SYLLABUS & IMPORTANT TOPICS -->
         <section id="tab-syllabus" class="hidden space-y-4">
             <div class="glass-panel p-5 rounded-2xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-base font-bold">Subject Syllabus & PYQs</h2>
-                    <select id="syllabusSubjectSelect" onchange="renderSyllabusContent()" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-1.5 text-slate-200">
-                        <!-- Loaded dynamically -->
-                    </select>
+                    <h2 class="text-base font-bold">Syllabus & Important Topics</h2>
+                    <select id="syllabusSubjectSelect" onchange="renderSyllabusContent()" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-1.5 text-slate-200"></select>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="newChapterInput" placeholder="Add new chapter or unit..." class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <button onclick="addChapterToSubject()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Add Chapter</button>
                 </div>
                 <div id="syllabusContainer" class="space-y-3"></div>
             </div>
@@ -86,7 +85,7 @@
 
         <!-- TAB 4: AI MENTOR -->
         <section id="tab-mentor" class="hidden space-y-4">
-            <div class="glass-panel p-5 rounded-2xl h-[600px] flex flex-col justify-between">
+            <div class="glass-panel p-5 rounded-2xl h-[560px] flex flex-col justify-between">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center text-white">
@@ -94,81 +93,78 @@
                         </div>
                         <div>
                             <h2 class="text-sm font-bold">Gemini AI Academic Mentor</h2>
-                            <p class="text-[11px] text-slate-400">Secured Key Mode</p>
+                            <p class="text-[11px] text-slate-400">Secure API Key Active</p>
                         </div>
                     </div>
-                    <!-- Camera Doubt Scanner -->
-                    <label class="cursor-pointer bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                    <label class="cursor-pointer bg-brand-600/20 text-brand-400 border border-brand-500/30 text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
                         <i class="fa-solid fa-camera"></i> Scan Doubt
                         <input type="file" accept="image/*" class="hidden" onchange="handleImageDoubt(event)">
                     </label>
                 </div>
-
-                <!-- Chat Log -->
                 <div id="chatMessages" class="flex-grow overflow-y-auto space-y-3 py-3 pr-1 text-xs">
                     <div class="flex items-start gap-2">
                         <div class="bg-brand-600 text-white p-3 rounded-2xl max-w-[85%] shadow-md">
-                            Hello! I am your AI Mentor. Configure your API key securely below or ask any engineering question!
+                            Hello Jay! I am your AI Mentor. Configure your private Gemini API key in your profile menu to start chatting!
                         </div>
                     </div>
                 </div>
-
-                <!-- Chat Input Box -->
                 <div class="flex items-center gap-2 pt-3 border-t border-slate-800">
-                    <input type="text" id="chatInput" placeholder="Ask anything..." class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-brand-500">
+                    <input type="text" id="chatInput" placeholder="Ask any engineering question..." class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-brand-500">
                     <button onclick="sendGeminiMessage()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-lg transition">Send</button>
                 </div>
             </div>
         </section>
-
     </main>
-      <!-- BOTTOM NAVIGATION BAR (Mobile Optimized) -->
+        <!-- BOTTOM NAVIGATION BAR -->
     <nav class="glass-panel fixed bottom-0 left-0 right-0 z-40 px-6 py-3 flex items-center justify-around border-t border-slate-800 md:hidden">
         <button onclick="switchTab('dashboard')" id="nav-btn-dashboard" class="flex flex-col items-center gap-1 text-brand-400">
-            <i class="fa-solid fa-chart-pie text-base"></i>
-            <span class="text-[10px] font-medium">Dashboard</span>
+            <i class="fa-solid fa-chart-pie text-base"></i><span class="text-[10px] font-medium">Dashboard</span>
         </button>
         <button onclick="switchTab('timetable')" id="nav-btn-timetable" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-            <i class="fa-solid fa-calendar-days text-base"></i>
-            <span class="text-[10px] font-medium">Timetable</span>
+            <i class="fa-solid fa-calendar-days text-base"></i><span class="text-[10px] font-medium">Timetable</span>
         </button>
         <button onclick="switchTab('syllabus')" id="nav-btn-syllabus" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-            <i class="fa-solid fa-book-open text-base"></i>
-            <span class="text-[10px] font-medium">Syllabus</span>
+            <i class="fa-solid fa-book-open text-base"></i><span class="text-[10px] font-medium">Syllabus</span>
         </button>
         <button onclick="switchTab('mentor')" id="nav-btn-mentor" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-            <i class="fa-solid fa-robot text-base"></i>
-            <span class="text-[10px] font-medium">AI Mentor</span>
+            <i class="fa-solid fa-robot text-base"></i><span class="text-[10px] font-medium">AI Mentor</span>
         </button>
     </nav>
 
-    <!-- AUTHENTICATION MODAL (Triggered via Profile Icon) -->
-    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl space-y-4 relative border border-slate-700 shadow-2xl">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
-            <div>
-                <h3 class="font-bold text-base text-white">Cloud Account Sync</h3>
-                <p class="text-xs text-slate-400">Secure your attendance and personal API key.</p>
+    <!-- LINE-WISE PROFILE & SETTINGS MODAL -->
+    <div id="profileModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel max-w-md w-full p-6 rounded-2xl space-y-5 relative border border-slate-700 shadow-2xl my-auto">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            <div class="flex items-center space-x-4 border-b border-slate-800 pb-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center font-bold text-xl text-white shadow-xl overflow-hidden border-2 border-brand-500">
+                    <span id="modalAvatarText">JN</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-white">Jay Nayak</h3>
+                    <p class="text-xs text-slate-400">+91 98765 43210</p>
+                </div>
             </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Email Address</label>
-                    <input type="email" id="authEmail" placeholder="student@bkbiat.ac.in" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+            <div class="space-y-3 text-xs divide-y divide-slate-800/60">
+                <div class="pt-2 flex justify-between"><span class="text-slate-400">College Name:</span><span class="font-semibold text-slate-200">BKBIET Pilani</span></div>
+                <div class="pt-2 flex justify-between"><span class="text-slate-400">Branch:</span><span class="font-semibold text-slate-200">Electronics & Comm. (ECE)</span></div>
+                <div class="pt-2 flex justify-between"><span class="text-slate-400">Current Semester:</span><span class="font-semibold text-slate-200">1st Semester (1st Year)</span></div>
+                <div class="pt-3 flex items-center justify-between">
+                    <span class="text-slate-300 font-medium">Night Mode (Dark Theme)</span>
+                    <input type="checkbox" id="darkModeToggle" checked onchange="toggleDarkMode()" class="toggle accent-indigo-600 w-4 h-4 cursor-pointer">
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Password</label>
-                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                <div class="pt-3 space-y-1.5">
+                    <label class="block font-semibold text-slate-300">Private Gemini API Key (Secure)</label>
+                    <input type="password" id="userCustomKey" placeholder="Paste your key here to lock it safely" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <button onclick="saveApiKey()" class="w-full mt-1 bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2 rounded-xl text-xs transition">Save Secure API Key</button>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Custom Gemini API Key (Optional)</label>
-                    <input type="password" id="userCustomKey" placeholder="Paste your key to lock it safely" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                <div class="pt-4 flex justify-between items-center">
+                    <span class="text-rose-400 font-medium">Danger Zone</span>
+                    <button onclick="deleteAccountData()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-xl font-semibold transition">Delete Account Data</button>
                 </div>
-                <button onclick="handleAuthSubmit()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-lg transition">Save & Authenticate</button>
             </div>
         </div>
     </div>
-
-    <!-- ADD SUBJECT MODAL -->
+        <!-- ADD SUBJECT MODAL -->
     <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-6 rounded-2xl space-y-4 relative border border-slate-700">
             <button onclick="closeAddSubjectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
@@ -179,23 +175,22 @@
             </div>
         </div>
     </div>
-      <script>
-        // State Management
+
+    <!-- SCRIPT ENGINE -->
+    <script>
         let currentTab = 'dashboard';
         let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
-            { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: ['Unit 1: Matrices', 'Unit 2: Differential Equations', 'Unit 3: Complex Numbers'] },
-            { id: '2', name: 'Engineering Physics', total: 10, attended: 7, target: 75, syllabus: ['Unit 1: Quantum Mechanics', 'Unit 2: Wave Optics', 'Unit 3: Lasers'] }
+            { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: ['Unit 1: Matrices (Imp)', 'Unit 2: Differential Equations (Imp)', 'Unit 3: Complex Numbers'] },
+            { id: '2', name: 'Engineering Physics', total: 10, attended: 7, target: 75, syllabus: ['Unit 1: Quantum Mechanics (Imp)', 'Unit 2: Wave Optics', 'Unit 3: Lasers'] }
         ];
 
-        const timetableData = [
-            { day: 'Monday', classes: ['Engineering Math I - 09:00 AM', 'Engineering Physics - 10:00 AM', 'Basic Electronics - 11:15 AM'] },
-            { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM', 'Physics Lab - 02:00 PM'] },
-            { day: 'Wednesday', classes: ['Engineering Physics - 09:00 AM', 'Workshop Practice - 10:30 AM'] },
-            { day: 'Thursday', classes: ['Basic Electronics - 09:00 AM', 'Engineering Math I - 10:00 AM', 'Library - 03:00 PM'] },
-            { day: 'Friday', classes: ['Programming in C - 09:00 AM', 'Physics Tutorial - 11:15 AM'] }
+        let timetableData = JSON.parse(localStorage.getItem('classbunk_timetable')) || [
+            { day: 'Monday', classes: ['Engineering Math I - 09:00 AM', 'Engineering Physics - 10:00 AM'] },
+            { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM'] }
         ];
 
-        // Tab Switching Logic
+        let holidaysCount = localStorage.getItem('classbunk_holidays') || 0;
+
         function switchTab(tab) {
             currentTab = tab;
             ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
@@ -211,22 +206,31 @@
             if(tab === 'syllabus') initSyllabusDropdown();
         }
 
-        // Modal Controls
-        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+        function openProfileModal() { document.getElementById('profileModal').classList.remove('hidden'); document.getElementById('userCustomKey').value = localStorage.getItem('user_secure_gemini_key') || ''; }
+        function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
         function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.remove('hidden'); }
         function closeAddSubjectModal() { document.getElementById('addSubjectModal').classList.add('hidden'); }
 
-        function handleAuthSubmit() {
-            const customKey = document.getElementById('userCustomKey').value.trim();
-            if(customKey) {
-                localStorage.setItem('user_secure_gemini_key', customKey);
-                alert('API Key securely saved in your browser session! No one else can access it.');
+        function saveApiKey() {
+            const key = document.getElementById('userCustomKey').value.trim();
+            if(key) {
+                localStorage.setItem('user_secure_gemini_key', key);
+                alert('Secure API Key saved successfully locally!');
+                closeProfileModal();
             }
-            closeAuthModal();
-            document.getElementById('authBtnText').innerText = "Connected";
         }
-                // Render Dashboard Subjects
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function deleteAccountData() {
+            if(confirm('Are you sure you want to clear all attendance and local data?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
         function renderDashboard() {
             const grid = document.getElementById('subjectGrid');
             grid.innerHTML = '';
@@ -234,9 +238,9 @@
                 const percentage = sub.total === 0 ? 0 : Math.round((sub.attended / sub.total) * 100);
                 const isSafe = percentage >= sub.target;
                 grid.innerHTML += `
-                    <div class="glass-card p-4 rounded-2xl space-y-3">
+                    <div class="glass-card p-4 rounded-2xl space-y-3 shadow-md">
                         <div class="flex justify-between items-start">
-                            <h3 class="font-bold text-sm">${sub.name}</h3>
+                            <h3 class="font-bold text-sm text-slate-100">${sub.name}</h3>
                             <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${isSafe ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${percentage}%</span>
                         </div>
                         <div class="flex justify-between text-xs text-slate-400">
@@ -244,8 +248,8 @@
                             <span>Target: ${sub.target}%</span>
                         </div>
                         <div class="flex gap-2 pt-2">
-                            <button onclick="updateAttendance('${sub.id}', 1, 1)" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 py-1.5 rounded-xl text-xs font-semibold">+ Attend</button>
-                            <button onclick="updateAttendance('${sub.id}', 0, 1)" class="flex-1 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 py-1.5 rounded-xl text-xs font-semibold">+ Bunk</button>
+                            <button onclick="updateAttendance('${sub.id}', 1, 1)" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 py-1.5 rounded-xl text-xs font-semibold transition">+ Attend</button>
+                            <button onclick="updateAttendance('${sub.id}', 0, 1)" class="flex-1 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 py-1.5 rounded-xl text-xs font-semibold transition">+ Bunk</button>
                         </div>
                     </div>
                 `;
@@ -265,25 +269,56 @@
         function saveNewSubject() {
             const name = document.getElementById('newSubName').value.trim();
             if(name) {
-                subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: ['Unit 1', 'Unit 2'] });
+                subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: ['Unit 1 (Imp)', 'Unit 2'] });
                 closeAddSubjectModal();
                 renderDashboard();
             }
         }
 
         function renderTimetable() {
+            document.getElementById('holidayCount').innerText = holidaysCount + ' days';
             const container = document.getElementById('timetableContainer');
             container.innerHTML = '';
-            timetableData.forEach(day => {
+            timetableData.forEach((day, idx) => {
                 container.innerHTML += `
                     <div class="glass-card p-3 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-2">
                         <span class="font-bold text-xs text-brand-400 w-28">${day.day}</span>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2 flex-grow">
                             ${day.classes.map(c => `<span class="bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-[11px] text-slate-300">${c}</span>`).join('')}
                         </div>
+                        <button onclick="addSlotToDay(${idx})" class="text-[11px] text-brand-400 bg-brand-600/10 hover:bg-brand-600/20 px-2 py-1 rounded-lg">+ Class</button>
                     </div>
                 `;
             });
+        }
+
+        function addSlotToDay(idx) {
+            const className = prompt("Enter course name & time (e.g., Electronics - 10:00 AM):");
+            if(className) {
+                timetableData[idx].classes.push(className);
+                localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                renderTimetable();
+            }
+        }
+
+        function handleHolidayUpload(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        // Simple parser simulation for holiday count
+                        holidaysCount = content.split('\n').length || 10;
+                        localStorage.setItem('classbunk_holidays', holidaysCount);
+                        alert(`Holiday sheet uploaded successfully! Total calculated non-lecture days: ${holidaysCount}`);
+                        renderTimetable();
+                    } catch(err) {
+                        alert('Error reading holiday sheet file.');
+                    }
+                };
+                reader.readAsText(file);
+            }
         }
 
         function initSyllabusDropdown() {
@@ -297,15 +332,36 @@
             const sub = subjects.find(s => s.id === id);
             const container = document.getElementById('syllabusContainer');
             if(!sub) return;
-            container.innerHTML = sub.syllabus.map(unit => `
+            container.innerHTML = sub.syllabus.map((unit, uIdx) => `
                 <div class="glass-card p-3 rounded-xl flex items-center justify-between">
-                    <span class="text-xs text-slate-200">${unit}</span>
-                    <span class="text-[10px] bg-brand-600/20 text-brand-400 px-2 py-0.5 rounded-md">PYQs Available</span>
+                    <span class="text-xs text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bookmark text-brand-400"></i> ${unit}</span>
+                    <button onclick="removeChapter('${sub.id}', ${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
-        // Secure Gemini AI API Integration
+        function addChapterToSubject() {
+            const id = document.getElementById('syllabusSubjectSelect').value;
+            const input = document.getElementById('newChapterInput');
+            const chapter = input.value.trim();
+            const sub = subjects.find(s => s.id === id);
+            if(sub && chapter) {
+                sub.syllabus.push(chapter);
+                input.value = '';
+                renderSyllabusContent();
+                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            }
+        }
+
+        function removeChapter(subId, uIdx) {
+            const sub = subjects.find(s => s.id === subId);
+            if(sub) {
+                sub.syllabus.splice(uIdx, 1);
+                renderSyllabusContent();
+                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            }
+        }
+
         async function sendGeminiMessage() {
             const input = document.getElementById('chatInput');
             const prompt = input.value.trim();
@@ -318,7 +374,7 @@
             input.value = '';
 
             if(!userApiKey) {
-                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">⚠️ Please set your private Gemini API key by clicking your profile icon (top left) to secure and activate live AI!</div></div>`;
+                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">⚠️ Please click your profile icon (top left) and enter your private Gemini API key to chat!</div></div>`;
                 return;
             }
 
@@ -339,15 +395,13 @@
         function handleImageDoubt(event) {
             const file = event.target.files[0];
             if(file) {
-                document.getElementById('chatMessages').innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl text-xs">[Uploaded Image Doubt Scanned]</div></div>`;
+                document.getElementById('chatMessages').innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl text-xs">[Uploaded Image Scanned]</div></div>`;
                 setTimeout(() => {
-                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">I've received your scanned doubt image! (Ensure your API key is configured to get automated visual step-by-step solutions).</div></div>`;
+                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">Image received! Ensure your API key is saved under your profile icon for AI solutions.</div></div>`;
                 }, 1000);
             }
         }
 
-        // Initialize App on Load
         window.onload = () => { renderDashboard(); };
     </script>
 </html>
-
