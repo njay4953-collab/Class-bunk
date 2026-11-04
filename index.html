@@ -61,7 +61,7 @@
                 <div class="space-y-3">
                     <div class="text-xs text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
                         <span>Total Academic Holidays Loaded: <strong id="holidayCount" class="text-white">0 days</strong></span>
-                        <button onclick="openAddTimetableModal()" class="text-brand-400 hover:underline font-semibold">+ Add Schedule Slot</button>
+                        <button onclick="addNewDaySchedule()" class="text-brand-400 hover:underline font-semibold">+ Add Day Schedule</button>
                     </div>
                     <div id="timetableContainer" class="space-y-3"></div>
                 </div>
@@ -164,7 +164,8 @@
             </div>
         </div>
     </div>
-        <!-- ADD SUBJECT MODAL -->
+
+    <!-- ADD SUBJECT MODAL -->
     <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-6 rounded-2xl space-y-4 relative border border-slate-700">
             <button onclick="closeAddSubjectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
@@ -175,18 +176,27 @@
             </div>
         </div>
     </div>
-
-    <!-- SCRIPT ENGINE -->
+        <!-- SCRIPT ENGINE -->
     <script>
         let currentTab = 'dashboard';
         let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
-            { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: ['Unit 1: Matrices (Imp)', 'Unit 2: Differential Equations (Imp)', 'Unit 3: Complex Numbers'] },
-            { id: '2', name: 'Engineering Physics', total: 10, attended: 7, target: 75, syllabus: ['Unit 1: Quantum Mechanics (Imp)', 'Unit 2: Wave Optics', 'Unit 3: Lasers'] }
+            { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: [
+                { name: 'Unit 1: Matrices', impTopics: ['Eigenvalues & Eigenvectors', 'Cayley-Hamilton Theorem', 'Rank of Matrix'] },
+                { name: 'Unit 2: Differential Equations', impTopics: ['Linear ODEs of Higher Order', 'Method of Variation of Parameters'] },
+                { name: 'Unit 3: Complex Numbers', impTopics: ['De Moivre Theorem', 'Analytic Functions'] }
+            ]},
+            { id: '2', name: 'Engineering Physics', total: 10, attended: 7, target: 75, syllabus: [
+                { name: 'Unit 1: Quantum Mechanics', impTopics: ['Schrodinger Wave Equation', 'Heisenberg Uncertainty Principle'] },
+                { name: 'Unit 2: Wave Optics', impTopics: ['Interference in Thin Films', 'Newton Rings'] }
+            ]}
         ];
 
         let timetableData = JSON.parse(localStorage.getItem('classbunk_timetable')) || [
             { day: 'Monday', classes: ['Engineering Math I - 09:00 AM', 'Engineering Physics - 10:00 AM'] },
-            { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM'] }
+            { day: 'Tuesday', classes: ['Programming in C - 09:00 AM', 'Engineering Math I - 11:15 AM'] },
+            { day: 'Wednesday', classes: ['Basic Electronics - 10:00 AM'] },
+            { day: 'Thursday', classes: ['Engineering Physics - 11:00 AM'] },
+            { day: 'Friday', classes: ['Mathematics Tutorial - 09:00 AM'] }
         ];
 
         let holidaysCount = localStorage.getItem('classbunk_holidays') || 0;
@@ -220,9 +230,7 @@
             }
         }
 
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 
         function deleteAccountData() {
             if(confirm('Are you sure you want to clear all attendance and local data?')) {
@@ -269,7 +277,7 @@
         function saveNewSubject() {
             const name = document.getElementById('newSubName').value.trim();
             if(name) {
-                subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: ['Unit 1 (Imp)', 'Unit 2'] });
+                subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: [{ name: 'Unit 1', impTopics: ['Basic Concepts'] }] });
                 closeAddSubjectModal();
                 renderDashboard();
             }
@@ -301,6 +309,15 @@
             }
         }
 
+        function addNewDaySchedule() {
+            const dayName = prompt("Enter day name (e.g., Saturday):");
+            if(dayName) {
+                timetableData.push({ day: dayName, classes: [] });
+                localStorage.setItem('classbunk_timetable', JSON.stringify(timetableData));
+                renderTimetable();
+            }
+        }
+
         function handleHolidayUpload(event) {
             const file = event.target.files[0];
             if(file) {
@@ -308,7 +325,6 @@
                 reader.onload = function(e) {
                     try {
                         const content = e.target.result;
-                        // Simple parser simulation for holiday count
                         holidaysCount = content.split('\n').length || 10;
                         localStorage.setItem('classbunk_holidays', holidaysCount);
                         alert(`Holiday sheet uploaded successfully! Total calculated non-lecture days: ${holidaysCount}`);
@@ -332,10 +348,23 @@
             const sub = subjects.find(s => s.id === id);
             const container = document.getElementById('syllabusContainer');
             if(!sub) return;
-            container.innerHTML = sub.syllabus.map((unit, uIdx) => `
-                <div class="glass-card p-3 rounded-xl flex items-center justify-between">
-                    <span class="text-xs text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bookmark text-brand-400"></i> ${unit}</span>
-                    <button onclick="removeChapter('${sub.id}', ${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+            container.innerHTML = sub.syllabus.map((chap, uIdx) => `
+                <div class="glass-card p-4 rounded-xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-bookmark text-brand-400"></i> ${chap.name}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="addImpTopicPrompt('${sub.id}', ${uIdx})" class="text-[10px] bg-brand-600/20 text-brand-400 border border-brand-500/30 px-2 py-1 rounded-lg">+ Imp Topic</button>
+                            <button onclick="removeChapter('${sub.id}', ${uIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        ${chap.impTopics && chap.impTopics.length > 0 ? chap.impTopics.map((topic, tIdx) => `
+                            <span class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-1 rounded-md text-amber-400 flex items-center gap-1">
+                                <i class="fa-solid fa-star text-[9px]"></i> ${topic}
+                                <i onclick="removeImpTopic('${sub.id}', ${uIdx}, ${tIdx})" class="fa-solid fa-xmark cursor-pointer ml-1 text-slate-500 hover:text-white"></i>
+                            </span>
+                        `).join('') : '<span class="text-[10px] text-slate-500 italic">No important topics added yet. Click "+ Imp Topic" above.</span>'}
+                    </div>
                 </div>
             `).join('');
         }
@@ -343,11 +372,31 @@
         function addChapterToSubject() {
             const id = document.getElementById('syllabusSubjectSelect').value;
             const input = document.getElementById('newChapterInput');
-            const chapter = input.value.trim();
+            const chapterName = input.value.trim();
             const sub = subjects.find(s => s.id === id);
-            if(sub && chapter) {
-                sub.syllabus.push(chapter);
+            if(sub && chapterName) {
+                sub.syllabus.push({ name: chapterName, impTopics: [] });
                 input.value = '';
+                renderSyllabusContent();
+                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            }
+        }
+
+        function addImpTopicPrompt(subId, uIdx) {
+            const topic = prompt("Enter Important Exam Topic (e.g., Gauss Law derivation):");
+            const sub = subjects.find(s => s.id === subId);
+            if(sub && topic) {
+                if(!sub.syllabus[uIdx].impTopics) sub.syllabus[uIdx].impTopics = [];
+                sub.syllabus[uIdx].impTopics.push(topic);
+                renderSyllabusContent();
+                localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            }
+        }
+
+        function removeImpTopic(subId, uIdx, tIdx) {
+            const sub = subjects.find(s => s.id === subId);
+            if(sub) {
+                sub.syllabus[uIdx].impTopics.splice(tIdx, 1);
                 renderSyllabusContent();
                 localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
             }
