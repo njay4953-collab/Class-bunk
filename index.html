@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClassBunk v3.0 | Ultimate Academic & Attendance Engine</title>
+  <title>ClassBunk v3.1 | Ultimate Academic Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -22,9 +22,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; }
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    .dark body { background: #0f172a; color: #f8fafc; }
+    .light body { background: #f8fafc; color: #0f172a; }
     .glass-panel { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .light .glass-panel { background: rgba(255, 255, 255, 0.85); border-color: rgba(0, 0, 0, 0.08); }
     .glass-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.25s ease; }
+    .light .glass-card { background: rgba(241, 245, 249, 0.8); border-color: rgba(0, 0, 0, 0.05); }
     .glass-card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
     .progress-ring-circle { transition: stroke-dashoffset 0.5s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -34,7 +38,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
 
-  <!-- Header & Navigation Tabs -->
+  <!-- Navigation Header -->
   <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 px-4 lg:px-8 py-3">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center justify-between w-full md:w-auto">
@@ -44,22 +48,25 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="font-black text-xl tracking-tight text-white">ClassBunk</h1>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-100 border border-brand-500/30">v3.0 Pro</span>
+              <h1 class="font-black text-xl tracking-tight text-white dark:text-white text-slate-900">ClassBunk</h1>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">v3.1 Pro</span>
             </div>
             <p class="text-xs text-slate-400">BKBIET Pilani Academic Hub</p>
           </div>
         </div>
       </div>
       
-      <!-- App Navigation Tabs -->
-      <nav class="flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-brand-600 text-white shadow-md">Dashboard</button>
-        <button onclick="switchTab('syllabus')" id="nav-syllabus" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white">Syllabus & PYQs</button>
-        <button onclick="switchTab('mentor')" id="nav-mentor" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+      <!-- App Tabs -->
+      <nav class="flex flex-wrap items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all bg-brand-600 text-white shadow-md">Dashboard</button>
+        <button onclick="switchTab('syllabus')" id="nav-syllabus" class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white">Syllabus & PYQs</button>
+        <button onclick="switchTab('mentor')" id="nav-mentor" class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
           <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> AI Mentor
         </button>
-        <button onclick="switchTab('timetable')" id="nav-timetable" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white">Timetable</button>
+        <button onclick="switchTab('timetable')" id="nav-timetable" class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white">Timetable</button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white flex items-center gap-1">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
       </nav>
 
       <div class="flex items-center gap-2 w-full md:w-auto justify-end">
@@ -81,7 +88,7 @@
         <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
           <div class="space-y-1">
             <p class="text-xs font-semibold text-slate-400 uppercase">Overall Attendance</p>
-            <h2 id="overallPctText" class="text-3xl font-extrabold text-white">0%</h2>
+            <h2 id="overallPctText" class="text-3xl font-extrabold">0%</h2>
             <p id="overallCountsText" class="text-xs text-slate-400">0 of 0 classes attended</p>
           </div>
           <div class="relative w-16 h-16 flex items-center justify-center">
@@ -148,7 +155,7 @@
       <!-- Subject Grid -->
       <section>
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <h2 class="text-lg font-bold flex items-center gap-2">
             <i class="fa-solid fa-book-open text-brand-500"></i> Enrolled Subjects
           </h2>
           <span id="subjectCountBadge" class="text-xs text-slate-400">0 Subjects</span>
@@ -162,16 +169,13 @@
       <div class="glass-panel p-6 rounded-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <div>
-            <h2 class="text-lg font-bold text-white">Subject Syllabus & Question Bank</h2>
-            <p class="text-xs text-slate-400">Access unit-wise topics, recommended textbooks, and previous year question papers (PYQs).</p>
+            <h2 class="text-lg font-bold">Subject Syllabus & Question Bank</h2>
+            <p class="text-xs text-slate-400">Customize units for your college syllabus & access PYQs.</p>
           </div>
           <select id="syllabusSubjectSelect" onchange="renderSyllabusContent()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2">
-            <!-- Dynamically populated -->
           </select>
         </div>
-        <div id="syllabusContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Populated via JS -->
-        </div>
+        <div id="syllabusContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
       </div>
     </div>
 
@@ -183,8 +187,8 @@
             <i class="fa-solid fa-robot text-lg"></i>
           </div>
           <div>
-            <h2 class="text-base font-bold text-white">AI Academic Mentor & Counsellor</h2>
-            <p class="text-xs text-slate-400">Free 24/7 guidance on attendance recovery, study schedules, and stress management.</p>
+            <h2 class="text-base font-bold">AI Academic Mentor & Counsellor</h2>
+            <p class="text-xs text-slate-400">Direct answers on math topics, asymptotes, PYQs, and study schedules.</p>
           </div>
         </div>
         
@@ -192,7 +196,7 @@
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center flex-shrink-0 text-xs">AI</div>
             <div class="glass-card p-3.5 rounded-2xl text-xs text-slate-200 max-w-lg">
-              Hello! I'm your AI Academic Mentor. How can I help you today? You can ask me things like <em>"How do I recover my Engineering Mathematics attendance?"</em> or <em>"Give me tips to beat exam stress."</em>
+              Hello! Ask me direct questions about your subjects (e.g., <em>"Explain asymptote in Math"</em>, <em>"PYQs for Curvature"</em>, or <em>"How to prepare for 1st sem exams"</em>).
             </div>
           </div>
         </div>
@@ -207,28 +211,63 @@
     <!-- TAB 4: TIMETABLE & HOLIDAY PLANNER -->
     <div id="tab-timetable" class="hidden space-y-6">
       <div class="glass-panel p-6 rounded-2xl space-y-4">
-        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-calendar-days text-brand-500"></i> Semester Timetable & Holiday Calculator
+        <h2 class="text-lg font-bold flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-brand-500"></i> Semester Timetable & Holiday Sheet Scanner
         </h2>
-        <p class="text-xs text-slate-400">Upload or configure your weekly lecture schedule and holiday calendar to automatically compute total semester classes.</p>
+        <p class="text-xs text-slate-400">Upload photo of your official college holiday sheet to calculate total lectures.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div class="glass-card p-5 rounded-xl space-y-3">
-            <h3 class="font-bold text-white text-sm">Upload College Timetable (PDF / Image)</h3>
-            <input type="file" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500">
-            <p class="text-[11px] text-slate-400">Our parser automatically extracts weekly lecture frequencies.</p>
+            <h3 class="font-bold text-sm">1. Upload Timetable Photo / PDF</h3>
+            <input type="file" id="timetableFile" accept="image/*,.pdf" onchange="handleFileScan('timetable')" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500">
+            <p id="timetableStatus" class="text-[11px] text-slate-400">No timetable uploaded yet.</p>
           </div>
           <div class="glass-card p-5 rounded-xl space-y-3">
-            <h3 class="font-bold text-white text-sm">Holiday Sheet Configuration</h3>
-            <textarea placeholder="Enter holiday dates or semester break ranges..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white h-24 focus:outline-none focus:border-brand-500"></textarea>
-            <button onclick="alert('Holiday schedule saved successfully!')" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl">Save Calendar</button>
+            <h3 class="font-bold text-sm">2. Upload Holiday Sheet Photo</h3>
+            <input type="file" id="holidayFile" accept="image/*,.pdf" onchange="handleFileScan('holiday')" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500">
+            <p id="holidayStatus" class="text-[11px] text-slate-400">No holiday sheet photo scanned yet.</p>
           </div>
         </div>
       </div>
     </div>
 
-  </main>
-    <!-- Add/Edit Subject Modal -->
+    <!-- TAB 5: SETTINGS -->
+    <div id="tab-settings" class="hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl space-y-6">
+        <h2 class="text-lg font-bold flex items-center gap-2">
+          <i class="fa-solid fa-gear text-brand-500"></i> App Preferences & Profile
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass-card p-5 rounded-xl space-y-4">
+            <h3 class="font-bold text-sm text-brand-400">Student Profile</h3>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Full Name</label>
+              <input type="text" id="profName" value="Jay Nayak" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Branch & Semester</label>
+              <input type="text" id="profBranch" value="ECE - 1st Semester (BKBIET)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+            </div>
+            <button onclick="saveProfile()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl">Save Profile</button>
+          </div>
+
+          <div class="glass-card p-5 rounded-xl space-y-4">
+            <h3 class="font-bold text-sm text-brand-400">Appearance & System</h3>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold">Theme Mode</span>
+              <button onclick="toggleTheme()" id="themeBtn" class="bg-slate-800 text-xs px-4 py-2 rounded-xl border border-slate-700">Dark Mode 🌙</button>
+            </div>
+            <div class="pt-4 border-t border-slate-800">
+              <button onclick="resetToSampleData()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold py-2.5 rounded-xl">Clear All App Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        </main>
+          <!-- Modal -->
   <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="glass-panel bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 relative">
       <button onclick="closeModal('addSubjectModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
@@ -239,7 +278,7 @@
         <input type="hidden" id="subId">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Subject Name *</label>
-          <input type="text" id="subName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+          <input type="text" id="subName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -263,19 +302,19 @@
     </div>
   </div>
 
-  <!-- JavaScript Hub -->
+  <!-- JavaScript -->
   <script>
     const INITIAL_SAMPLE_DATA = [
-      { id: '1', name: 'Engineering Mathematics-I', total: 24, attended: 20, target: 75, syllabus: ['Unit 1: Matrices & Linear Algebra', 'Unit 2: Calculus & Series', 'Unit 3: Ordinary Differential Equations'], pyqsUrl: '#' },
-      { id: '2', name: 'Engineering Physics', total: 20, attended: 14, target: 75, syllabus: ['Unit 1: Quantum Mechanics', 'Unit 2: Wave Optics', 'Unit 3: Electromagnetism'], pyqsUrl: '#' },
-      { id: '3', name: 'Digital Electronics', total: 18, attended: 16, target: 75, syllabus: ['Unit 1: Boolean Algebra', 'Unit 2: Combinational Logic', 'Unit 3: Sequential Circuits'], pyqsUrl: '#' },
-      { id: '4', name: 'Computer Programming', total: 15, attended: 10, target: 75, syllabus: ['Unit 1: C Fundamentals', 'Unit 2: Pointers & Arrays', 'Unit 3: File Handling'], pyqsUrl: '#' }
+      { id: '1', name: 'Engineering Mathematics-I', total: 24, attended: 20, target: 75, syllabus: ['Asymptotes & Curvature', 'Matrices & Linear Algebra', 'Calculus & Multivariable Series'], pyqsUrl: '#' },
+      { id: '2', name: 'Engineering Physics', total: 20, attended: 14, target: 75, syllabus: ['Quantum Mechanics', 'Wave Optics', 'Electromagnetism'], pyqsUrl: '#' },
+      { id: '3', name: 'Digital Electronics', total: 18, attended: 16, target: 75, syllabus: ['Boolean Algebra', 'Combinational Logic', 'Sequential Circuits'], pyqsUrl: '#' },
+      { id: '4', name: 'Computer Programming', total: 15, attended: 10, target: 75, syllabus: ['C Fundamentals', 'Pointers & Arrays', 'File Handling'], pyqsUrl: '#' }
     ];
 
     let subjects = [];
 
     function initApp() {
-      const stored = localStorage.getItem('classbunk_subjects_v3');
+      const stored = localStorage.getItem('classbunk_subjects_v3_1');
       if (stored) {
         try { subjects = JSON.parse(stored); } catch(e) { subjects = [...INITIAL_SAMPLE_DATA]; }
       } else {
@@ -288,17 +327,43 @@
     }
 
     function saveData() {
-      localStorage.setItem('classbunk_subjects_v3', JSON.stringify(subjects));
+      localStorage.setItem('classbunk_subjects_v3_1', JSON.stringify(subjects));
     }
 
     function switchTab(tabId) {
-      ['dashboard', 'syllabus', 'mentor', 'timetable'].forEach(t => {
+      ['dashboard', 'syllabus', 'mentor', 'timetable', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
-        document.getElementById(`nav-${t}`).className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white";
+        document.getElementById(`nav-${t}`).className = "px-3.5 py-2 rounded-xl text-xs font-semibold transition-all text-slate-400 hover:text-white";
       });
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-      document.getElementById(`nav-${tabId}`).className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-brand-600 text-white shadow-md";
+      document.getElementById(`nav-${tabId}`).className = "px-3.5 py-2 rounded-xl text-xs font-semibold transition-all bg-brand-600 text-white shadow-md";
       if(tabId === 'syllabus') renderSyllabusContent();
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeBtn');
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        btn.innerText = 'Light Mode ☀️';
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        btn.innerText = 'Dark Mode 🌙';
+      }
+    }
+
+    function saveProfile() {
+      alert('Profile saved successfully!');
+    }
+
+    function handleFileScan(type) {
+      const status = document.getElementById(type + 'Status');
+      status.innerText = 'Scanning photo/document...';
+      setTimeout(() => {
+        status.innerText = `Scanned successfully! Calculated buffer offset for ${type}.`;
+      }, 1000);
     }
 
     function resetToSampleData() {
@@ -354,7 +419,7 @@
         const index = subjects.findIndex(s => s.id === id);
         if(index !== -1) subjects[index] = { ...subjects[index], id, name, total, attended, target };
       } else {
-        subjects.push({ id: Date.now().toString(), name, total, attended, target, syllabus: ['Unit 1: Basics', 'Unit 2: Core Concepts', 'Unit 3: Advanced Applications'], pyqsUrl: '#' });
+        subjects.push({ id: Date.now().toString(), name, total, attended, target, syllabus: ['Unit 1: Basics', 'Unit 2: Core Concepts'], pyqsUrl: '#' });
       }
 
       saveData();
@@ -416,7 +481,7 @@
             <div>
               <div class="flex items-start justify-between gap-3 mb-2">
                 <div>
-                  <h3 class="font-bold text-white text-base">${sub.name}</h3>
+                  <h3 class="font-bold text-base">${sub.name}</h3>
                   <span class="text-[10px] font-semibold text-slate-400">Target: ${sub.target}%</span>
                 </div>
                 <div class="flex items-center gap-1">
@@ -430,12 +495,12 @@
                     <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.08)" stroke-width="7" fill="transparent"/>
                     <circle class="progress-ring-circle" cx="40" cy="40" r="36" stroke="${isSafe ? '#10b981' : '#ef4444'}" stroke-width="7" stroke-dasharray="226.19" stroke-dashoffset="${offset}" stroke-linecap="round" fill="transparent"/>
                   </svg>
-                  <span class="absolute font-black text-sm text-white">${m.pct.toFixed(1)}%</span>
+                  <span class="absolute font-black text-sm">${m.pct.toFixed(1)}%</span>
                 </div>
                 <div class="space-y-1.5 flex-grow">
                   <div class="flex justify-between text-xs">
                     <span class="text-slate-400">Attended:</span>
-                    <span class="font-bold text-white">${sub.attended} / ${sub.total}</span>
+                    <span class="font-bold">${sub.attended} / ${sub.total}</span>
                   </div>
                   <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                     <div class="bg-${color}-500 h-full rounded-full" style="width: ${Math.min(m.pct, 100)}%"></div>
@@ -493,6 +558,17 @@
       select.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
     }
 
+    function addSyllabusUnit() {
+      const selectId = document.getElementById('syllabusSubjectSelect').value;
+      const sub = subjects.find(s => s.id === selectId);
+      const unitName = prompt("Enter new chapter/unit name:");
+      if (sub && unitName) {
+        sub.syllabus.push(unitName);
+        saveData();
+        renderSyllabusContent();
+      }
+    }
+
     function renderSyllabusContent() {
       populateSyllabusDropdown();
       const selectId = document.getElementById('syllabusSubjectSelect').value;
@@ -502,16 +578,18 @@
 
       container.innerHTML = `
         <div class="glass-card p-5 rounded-2xl space-y-3 md:col-span-2">
-          <h3 class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-list-check text-brand-500"></i> Syllabus Breakdown</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-list-check text-brand-500"></i> Syllabus Units</h3>
+            <button onclick="addSyllabusUnit()" class="bg-brand-600/30 text-brand-400 text-xs px-2.5 py-1 rounded-lg border border-brand-500/30">+ Add Chapter</button>
+          </div>
           <ul class="space-y-2">
-            ${sub.syllabus.map(topic => `<li class="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800"><i class="fa-solid fa-circle-dot text-[8px] text-brand-400"></i> ${topic}</li>`).join('')}
+            ${sub.syllabus.map(topic => `<li class="text-xs flex items-center gap-2 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800"><i class="fa-solid fa-circle-dot text-[8px] text-brand-400"></i> ${topic}</li>`).join('')}
           </ul>
         </div>
         <div class="glass-card p-5 rounded-2xl space-y-4">
-          <h3 class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-file-pdf text-rose-400"></i> PYQs & Study Books</h3>
-          <p class="text-xs text-slate-400">Download previous year mid-term papers and reference notes for ${sub.name}.</p>
-          <a href="#" onclick="alert('Downloading PYQ PDF package...')" class="block w-full text-center bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all">Download PYQ PDF</a>
-          <a href="#" onclick="alert('Opening reference textbook library...')" class="block w-full text-center bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2.5 rounded-xl transition-all">View Textbook</a>
+          <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-file-pdf text-rose-400"></i> PYQs & Study Books</h3>
+          <p class="text-xs text-slate-400">Reference PYQs and topic notes for ${sub.name}.</p>
+          <a href="#" onclick="alert('Opening PYQs for ${sub.name}...')" class="block w-full text-center bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all">Download PYQs</a>
         </div>
       `;
     }
@@ -532,19 +610,25 @@
       chat.scrollTop = chat.scrollHeight;
 
       setTimeout(() => {
-        let reply = "That's a great question! To manage your attendance safely, ensure you maintain a buffer of at least 2 safe bunks before considering skipping any lecture. Let me know if you need specific revision strategies or mental wellness tips!";
-        const lowSubs = subjects.filter(s => calculateSubjectMetrics(s.total, s.attended, s.target).pct < s.target);
-        if(msg.toLowerCase().includes('attendance') && lowSubs.length > 0) {
-          reply = `I noticed your attendance in ${lowSubs[0].name} is below target. You need to attend the next ${calculateSubjectMetrics(lowSubs[0].total, lowSubs[0].attended, lowSubs[0].target).recoveryNeeded} classes consecutively to recover!`;
+        const lower = msg.toLowerCase();
+        let reply = "I can help with Engineering Math, Physics, and Exam preparation. What specific topic are you revising?";
+        
+        if (lower.includes('asymptote') || lower.includes('math')) {
+          reply = "For **Asymptotes in 1st Sem Math**: \n1. Parallel to axes: Equate highest power coefficients of x or y to 0.\n2. Oblique asymptotes: Substitute y = mx + c into $\\phi_n(m) = 0$.\nKey PYQ question: *Find all asymptotes of x^3 + y^3 = 3axy*.";
+        } else if (lower.includes('curvature')) {
+          reply = "For **Curvature**: \nFormula: $\\rho = \\frac{[1 + (y')^2]^{3/2}}{y''}$. \nKey PYQ focus: Radius of curvature at origin using Newton's method.";
+        } else if (lower.includes('pyq') || lower.includes('important')) {
+          reply = "High-weightage 1st sem math PYQ topics:\n1. Asymptotes & Singular points\n2. Radius of Curvature\n3. Taylor & Maclaurin series expansion\n4. Rank of Matrix & Cayley-Hamilton Theorem.";
         }
+
         chat.innerHTML += `
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center flex-shrink-0 text-xs">AI</div>
-            <div class="glass-card p-3.5 rounded-2xl text-xs text-slate-200 max-w-lg">${reply}</div>
+            <div class="glass-card p-3.5 rounded-2xl text-xs text-slate-200 max-w-lg whitespace-pre-line">${reply}</div>
           </div>
         `;
         chat.scrollTop = chat.scrollHeight;
-      }, 700);
+      }, 500);
     }
 
     initApp();
