@@ -137,7 +137,6 @@
         </div>
     </div>
         <script>
-        // State Management
         let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
             { id: 1, name: 'Engineering Mathematics I', attended: 22, total: 28 },
             { id: 2, name: 'Engineering Physics', attended: 18, total: 24 },
@@ -146,6 +145,7 @@
 
         function renderDashboard() {
             const container = document.getElementById('subjectListContainer');
+            if(!container) return;
             container.innerHTML = '';
             let totalAtt = 0, totalTot = 0;
 
@@ -169,10 +169,12 @@
             });
 
             const overallPct = totalTot > 0 ? ((totalAtt / totalTot) * 100).toFixed(1) : 0;
-            document.getElementById('dashOverallPct').innerText = overallPct + '%';
-            document.getElementById('dashClassesCount').innerText = `${totalAtt} of ${totalTot} classes attended`;
+            const pctEl = document.getElementById('dashOverallPct');
+            const countEl = document.getElementById('dashClassesCount');
+            if(pctEl) pctEl.innerText = overallPct + '%';
+            if(countEl) countEl.innerText = `${totalAtt} of ${totalTot} classes attended`;
             
-            localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
+            try { localStorage.setItem('classbunk_subjects', JSON.stringify(subjects)); } catch(e){}
         }
 
         function updateAttendance(id, change) {
@@ -186,26 +188,36 @@
 
         function switchTab(tab) {
             ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
-                document.getElementById('view-' + t).classList.add('hidden');
-                document.getElementById('nav-' + t).className = 'flex flex-col items-center text-slate-400 hover:text-slate-200 transition';
+                const el = document.getElementById('view-' + t);
+                const nav = document.getElementById('nav-' + t);
+                if(el) el.classList.add('hidden');
+                if(nav) nav.className = 'flex flex-col items-center text-slate-400 hover:text-slate-200 transition';
             });
-            document.getElementById('view-' + tab).classList.remove('hidden');
-            document.getElementById('nav-' + tab).className = 'flex flex-col items-center text-brand-400 transition';
+            const targetView = document.getElementById('view-' + tab);
+            const targetNav = document.getElementById('nav-' + tab);
+            if(targetView) targetView.classList.remove('hidden');
+            if(targetNav) targetNav.className = 'flex flex-col items-center text-brand-400 transition';
         }
 
         function openProfileModal() {
-            document.getElementById('apiKeyInput').value = localStorage.getItem('user_secure_gemini_key') || '';
-            document.getElementById('profileModal').classList.remove('hidden');
+            const input = document.getElementById('apiKeyInput');
+            const modal = document.getElementById('profileModal');
+            if(input) input.value = localStorage.getItem('user_secure_gemini_key') || '';
+            if(modal) modal.classList.remove('hidden');
         }
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.add('hidden');
+            const modal = document.getElementById('profileModal');
+            if(modal) modal.classList.add('hidden');
         }
         function saveApiKey() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if(key) {
-                localStorage.setItem('user_secure_gemini_key', key);
-                alert('API Key saved securely!');
-                closeProfileModal();
+            const input = document.getElementById('apiKeyInput');
+            if(input) {
+                const key = input.value.trim();
+                if(key) {
+                    localStorage.setItem('user_secure_gemini_key', key);
+                    alert('API Key saved securely!');
+                    closeProfileModal();
+                }
             }
         }
         function openAddSubjectModal() {
@@ -216,7 +228,6 @@
             }
         }
 
-        // Bulletproof AI Mentor Message Handler with Dynamic Thinking Status and Fast Model Fallback
         async function sendGeminiMessage() {
             const input = document.getElementById('chatInput');
             if(!input) return;
@@ -255,7 +266,6 @@
                 }
             }, 1000);
 
-            // Model Fallback Chain ensuring instant stability
             const models = ['gemini-3.8-flash', 'gemini-1.5-flash'];
             let aiText = null;
 
@@ -292,13 +302,14 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const chatMessages = document.getElementById('chatMessages');
-                chatMessages.innerHTML += '<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]"><span class="text-xs font-semibold block mb-1">📷 Scanned Doubt</span><img src="' + e.target.result + '" class="rounded-xl max-h-40 object-cover w-full"></div></div>';
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                if(chatMessages) {
+                    chatMessages.innerHTML += '<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]"><span class="text-xs font-semibold block mb-1">📷 Scanned Doubt</span><img src="' + e.target.result + '" class="rounded-xl max-h-40 object-cover w-full"></div></div>';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
             };
             reader.readAsDataURL(file);
         }
 
-        // Initialize App on Load
         renderDashboard();
     </script>
 </body>
