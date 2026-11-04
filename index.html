@@ -176,8 +176,19 @@
             </div>
         </div>
     </div>
-        <!-- SCRIPT ENGINE -->
-    <script>
+        <!-- GOOGLE GEMINI SDK -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+
+    <!-- SCRIPT ENGINE -->
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
         let currentTab = 'dashboard';
         let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
             { id: '1', name: 'Engineering Mathematics I', total: 12, attended: 10, target: 75, syllabus: [
@@ -201,7 +212,7 @@
 
         let holidaysCount = localStorage.getItem('classbunk_holidays') || 0;
 
-        function switchTab(tab) {
+        window.switchTab = function(tab) {
             currentTab = tab;
             ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -216,12 +227,12 @@
             if(tab === 'syllabus') initSyllabusDropdown();
         }
 
-        function openProfileModal() { document.getElementById('profileModal').classList.remove('hidden'); document.getElementById('userCustomKey').value = localStorage.getItem('user_secure_gemini_key') || ''; }
-        function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
-        function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.remove('hidden'); }
-        function closeAddSubjectModal() { document.getElementById('addSubjectModal').classList.add('hidden'); }
+        window.openProfileModal = function() { document.getElementById('profileModal').classList.remove('hidden'); document.getElementById('userCustomKey').value = localStorage.getItem('user_secure_gemini_key') || ''; }
+        window.closeProfileModal = function() { document.getElementById('profileModal').classList.add('hidden'); }
+        window.openAddSubjectModal = function() { document.getElementById('addSubjectModal').classList.remove('hidden'); }
+        window.closeAddSubjectModal = function() { document.getElementById('addSubjectModal').classList.add('hidden'); }
 
-        function saveApiKey() {
+        window.saveApiKey = function() {
             const key = document.getElementById('userCustomKey').value.trim();
             if(key) {
                 localStorage.setItem('user_secure_gemini_key', key);
@@ -230,9 +241,9 @@
             }
         }
 
-        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+        window.toggleDarkMode = function() { document.documentElement.classList.toggle('dark'); }
 
-        function deleteAccountData() {
+        window.deleteAccountData = function() {
             if(confirm('Are you sure you want to clear all attendance and local data?')) {
                 localStorage.clear();
                 location.reload();
@@ -264,6 +275,7 @@
             });
             localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
         }
+        window.updateAttendance = updateAttendance;
 
         function updateAttendance(id, attInc, totInc) {
             const sub = subjects.find(s => s.id === id);
@@ -274,7 +286,7 @@
             }
         }
 
-        function saveNewSubject() {
+        window.saveNewSubject = function() {
             const name = document.getElementById('newSubName').value.trim();
             if(name) {
                 subjects.push({ id: Date.now().toString(), name, total: 0, attended: 0, target: 75, syllabus: [{ name: 'Unit 1', impTopics: ['Basic Concepts'] }] });
@@ -299,8 +311,9 @@
                 `;
             });
         }
+        window.renderTimetable = renderTimetable;
 
-        function addSlotToDay(idx) {
+        window.addSlotToDay = function(idx) {
             const className = prompt("Enter course name & time (e.g., Electronics - 10:00 AM):");
             if(className) {
                 timetableData[idx].classes.push(className);
@@ -309,7 +322,7 @@
             }
         }
 
-        function addNewDaySchedule() {
+        window.addNewDaySchedule = function() {
             const dayName = prompt("Enter day name (e.g., Saturday):");
             if(dayName) {
                 timetableData.push({ day: dayName, classes: [] });
@@ -318,7 +331,7 @@
             }
         }
 
-        function handleHolidayUpload(event) {
+        window.handleHolidayUpload = function(event) {
             const file = event.target.files[0];
             if(file) {
                 const reader = new FileReader();
@@ -368,8 +381,9 @@
                 </div>
             `).join('');
         }
+        window.renderSyllabusContent = renderSyllabusContent;
 
-        function addChapterToSubject() {
+        window.addChapterToSubject = function() {
             const id = document.getElementById('syllabusSubjectSelect').value;
             const input = document.getElementById('newChapterInput');
             const chapterName = input.value.trim();
@@ -382,7 +396,7 @@
             }
         }
 
-        function addImpTopicPrompt(subId, uIdx) {
+        window.addImpTopicPrompt = function(subId, uIdx) {
             const topic = prompt("Enter Important Exam Topic (e.g., Gauss Law derivation):");
             const sub = subjects.find(s => s.id === subId);
             if(sub && topic) {
@@ -393,7 +407,7 @@
             }
         }
 
-        function removeImpTopic(subId, uIdx, tIdx) {
+        window.removeImpTopic = function(subId, uIdx, tIdx) {
             const sub = subjects.find(s => s.id === subId);
             if(sub) {
                 sub.syllabus[uIdx].impTopics.splice(tIdx, 1);
@@ -402,7 +416,7 @@
             }
         }
 
-        function removeChapter(subId, uIdx) {
+        window.removeChapter = function(subId, uIdx) {
             const sub = subjects.find(s => s.id === subId);
             if(sub) {
                 sub.syllabus.splice(uIdx, 1);
@@ -411,15 +425,15 @@
             }
         }
 
-        async function sendGeminiMessage() {
+        window.sendGeminiMessage = async function() {
             const input = document.getElementById('chatInput');
-            const prompt = input.value.trim();
-            if(!prompt) return;
+            const promptText = input.value.trim();
+            if(!promptText) return;
 
             const userApiKey = localStorage.getItem('user_secure_gemini_key');
             const chatMessages = document.getElementById('chatMessages');
 
-            chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]">${prompt}</div></div>`;
+            chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%]">${promptText}</div></div>`;
             input.value = '';
 
             if(!userApiKey) {
@@ -428,35 +442,33 @@
             }
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userApiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                const ai = new GoogleGenAI({ apiKey: userApiKey });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: promptText,
                 });
-                const data = await response.json();
                 
-                if(data.candidates && data.candidates[0].content.parts[0].text) {
-                    const aiText = data.candidates[0].content.parts[0].text;
-                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">${aiText}</div></div>`;
+                if(response && response.text) {
+                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%]">${response.text}</div></div>`;
                 } else {
-                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">API Error: Check if your API key is valid.</div></div>`;
+                    chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">API Error: Empty response received.</div></div>`;
                 }
             } catch (err) {
-                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">Network Error connecting to Gemini API.</div></div>`;
+                chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl max-w-[85%]">API Error: ${err.message || 'Check if your API key is valid.'}</div></div>`;
             }
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function handleImageDoubt(event) {
+        window.handleImageDoubt = function(event) {
             const file = event.target.files[0];
             if(file) {
                 document.getElementById('chatMessages').innerHTML += `<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl text-xs">[Uploaded Image Scanned]</div></div>`;
                 setTimeout(() => {
-                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">Image received and scanned successfully!</div></div>`;
+                    document.getElementById('chatMessages').innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs">Image received and ready for analysis!</div></div>`;
                 }, 1000);
             }
         }
 
         window.onload = () => { renderDashboard(); };
-                                                                                                                                                                                </script>
-                                                                                                                                                                                
+            </script>
+            
