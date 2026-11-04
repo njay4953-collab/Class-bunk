@@ -1,0 +1,649 @@
+html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassBunk | Smart Attendance & Target Tracker</title>
+    <!-- SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236366f1'/><stop offset='100%' stop-color='%234338ca'/></linearGradient></defs><rect width='100' height='100' rx='28' fill='url(%23g)'/><path d='M30 32h40v10H30zM25 48h50v10H25zM35 64h30v10H35z' fill='%23ffffff' opacity='0.3'/><path d='M22 36 L50 20 L78 36 L50 52 Z' fill='%23ffffff'/><path d='M32 46 v16 c0 6 8 10 18 10 s18 -4 18 -10 V46' fill='none' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/><circle cx='78' cy='46' r='4' fill='%2338bdf8'/></svg>">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        bunk: {
+                            safe: '#10b981',    // Emerald
+                            warning: '#f59e0b', // Amber
+                            danger: '#ef4444',  // Red
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Custom High-Tech SVG Logo -->
+                <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-indigo-400 p-0.5 shadow-lg shadow-brand-500/20 group hover:scale-105 transition-transform">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center overflow-hidden relative">
+                        <div class="absolute inset-0 bg-brand-500/10 group-hover:bg-brand-500/20 transition-colors"></div>
+                        <svg class="w-7 h-7 relative z-10 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Glow & Grid Lines -->
+                            <path d="M20 75L80 75" stroke="url(#logo_grad)" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+                            <!-- Mortarboard Cap (Academic Iconography) -->
+                            <path d="M50 20L85 36L50 52L15 36L50 20Z" fill="url(#logo_grad)" />
+                            <path d="M30 45V62C30 68 39 73 50 73C61 73 70 68 70 62V45" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Tech Nodes & Checkpoint -->
+                            <circle cx="85" cy="36" r="5" fill="#38bdf8"/>
+                            <path d="M85 41V58" stroke="#38bdf8" stroke-width="4" stroke-dasharray="2 2"/>
+                            <circle cx="85" cy="62" r="3" fill="#38bdf8"/>
+                            <!-- Gradient Definitions -->
+                            <defs>
+                                <linearGradient id="logo_grad" x1="15" y1="20" x2="85" y2="75" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818cf8"/>
+                                    <stop offset="0.5" stop-color="#6366f1"/>
+                                    <stop offset="1" stop-color="#38bdf8"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-none flex items-center gap-1.5">
+                        ClassBunk
+                        <span class="text-[10px] uppercase font-extrabold tracking-wider bg-brand-500/20 text-brand-400 border border-brand-500/30 px-1.5 py-0.5 rounded-md">v2.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Smart Attendance & Target Engine</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openModal('addSubjectModal')" class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-brand-600/25 transition-all">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span class="hidden sm:inline">Add Subject</span>
+                </button>
+                
+                <button onclick="openModal('settingsModal')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700/50" title="Settings & Data Management">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8">
+        
+        <!-- Global Summary Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Overall Percentage Card -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-brand-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Attendance</span>
+                    <div class="text-3xl font-extrabold text-white mt-1" id="overallPercentage">0%</div>
+                    <p class="text-xs text-slate-400 mt-1" id="overallClassesCount">0 of 0 classes attended</p>
+                </div>
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path id="overallRing" class="text-brand-500 progress-ring-circle" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <i class="fa-solid fa-graduation-cap absolute text-slate-400 text-sm"></i>
+                </div>
+            </div>
+
+            <!-- Health Status -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4" id="statusCardBorder">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Health</span>
+                    <div class="text-xl font-bold text-white mt-1" id="overallStatus">Analyzing...</div>
+                    <p class="text-xs text-slate-400 mt-1" id="overallStatusSub">Based on target limits</p>
+                </div>
+                <div id="overallStatusIcon" class="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-slate-800 text-slate-400">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <!-- Total Bunk Pool -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-emerald-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Available Bunks</span>
+                    <div class="text-3xl font-extrabold text-emerald-400 mt-1" id="totalSafeBunks">0</div>
+                    <p class="text-xs text-slate-400 mt-1">Safe lectures across all subjects</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-couch"></i>
+                </div>
+            </div>
+
+            <!-- Action Required Count -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-rose-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Action Needed</span>
+                    <div class="text-3xl font-extrabold text-rose-400 mt-1" id="totalClassesRequired">0</div>
+                    <p class="text-xs text-slate-400 mt-1">Must attend to recover target</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-person-running"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Tap Daily Timetable Logger -->
+        <section class="glass-panel rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> Daily Schedule Quick-Tap
+                    </h2>
+                    <p class="text-xs text-slate-400">Quickly log attendance for your classes today in one click.</p>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700 self-start sm:self-auto" id="todayDateStr">Today</span>
+            </div>
+
+            <div id="quickLoggerContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Dynamically populated daily subjects -->
+            </div>
+        </section>
+
+        <!-- Subjects Grid Section -->
+        <section class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-brand-500"></i> Course Subjects
+                    </h2>
+                    <p class="text-xs text-slate-400">Track and calculate target attendances for each individual subject.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="subjectSearch" oninput="renderSubjects()" placeholder="Search subject..." class="bg-slate-800/80 border border-slate-700/80 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors w-full sm:w-48">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Cards Container -->
+            <div id="subjectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Subject cards will be rendered here dynamically -->
+            </div>
+        </section>
+
+        <!-- Dynamic Target Calculator Simulator Tool -->
+        <section class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="max-w-3xl">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-indigo-400"></i> "What-If" Scenario Simulator
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Select a subject and test custom future scenarios to plan your leaves or recovery.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Select Subject</label>
+                        <select id="simSubjectSelect" onchange="runSimulation()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                            <!-- Options injected -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Target Goal: <span id="simTargetVal" class="text-brand-400 font-bold">75%</span></label>
+                        <input type="range" id="simTargetSlider" min="50" max="95" value="75" oninput="document.getElementById('simTargetVal').innerText = this.value + '%'; runSimulation();" class="w-full accent-brand-500 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Hypothetical Next Classes</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="simUpcomingAttended" min="0" value="5" oninput="runSimulation()" class="w-1/2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white text-center" placeholder="+ Attend">
+                            <input type="number" id="simUpcomingMissed" min="0" value="0" oninput="runSimulation()" class="w-1/2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white text-center" placeholder="+ Miss">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Output Box -->
+                <div id="simResultBox" class="mt-6 p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-start gap-4">
+                    <div class="p-3 rounded-xl bg-brand-500/10 text-brand-400 text-lg flex-shrink-0">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-semibold text-white" id="simResultTitle">Simulation Result</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed" id="simResultDesc">Select options above to compute projected target statistics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <p>© <span id="yearSpan"></span> ClassBunk. Designed for student freedom & smart academic planning.</p>
+            <div class="flex items-center gap-4">
+                <button onclick="resetToSampleData()" class="hover:text-slate-300 transition-colors">Reset to Sample Data</button>
+                <span>•</span>
+                <button onclick="exportData()" class="hover:text-slate-300 transition-colors">Export Backup</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ADD/EDIT SUBJECT MODAL -->
+    <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="closeModal('addSubjectModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1" id="modalTitle">Add New Subject</h3>
+            <p class="text-xs text-slate-400 mb-6">Enter current attendance stats to track target bunks.</p>
+
+            <form id="subjectForm" onsubmit="handleSubjectSubmit(event)" class="space-y-4">
+                <input type="hidden" id="subId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Subject Name *</label>
+                    <input type="text" id="subName" required placeholder="e.g. Engineering Mathematics-I" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Total Held Classes</label>
+                        <input type="number" id="subTotal" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Classes Attended</label>
+                        <input type="number" id="subAttended" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Minimum Target Percentage (%)</label>
+                    <input type="number" id="subTarget" mi```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassBunk | Smart Attendance & Target Tracker</title>
+    <!-- SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236366f1'/><stop offset='100%' stop-color='%234338ca'/></linearGradient></defs><rect width='100' height='100' rx='28' fill='url(%23g)'/><path d='M30 32h40v10H30zM25 48h50v10H25zM35 64h30v10H35z' fill='%23ffffff' opacity='0.3'/><path d='M22 36 L50 20 L78 36 L50 52 Z' fill='%23ffffff'/><path d='M32 46 v16 c0 6 8 10 18 10 s18 -4 18 -10 V46' fill='none' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/><circle cx='78' cy='46' r='4' fill='%2338bdf8'/></svg>">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        bunk: {
+                            safe: '#10b981',    // Emerald
+                            warning: '#f59e0b', // Amber
+                            danger: '#ef4444',  // Red
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Custom High-Tech SVG Logo -->
+                <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-indigo-400 p-0.5 shadow-lg shadow-brand-500/20 group hover:scale-105 transition-transform">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center overflow-hidden relative">
+                        <div class="absolute inset-0 bg-brand-500/10 group-hover:bg-brand-500/20 transition-colors"></div>
+                        <svg class="w-7 h-7 relative z-10 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Glow & Grid Lines -->
+                            <path d="M20 75L80 75" stroke="url(#logo_grad)" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+                            <!-- Mortarboard Cap (Academic Iconography) -->
+                            <path d="M50 20L85 36L50 52L15 36L50 20Z" fill="url(#logo_grad)" />
+                            <path d="M30 45V62C30 68 39 73 50 73C61 73 70 68 70 62V45" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Tech Nodes & Checkpoint -->
+                            <circle cx="85" cy="36" r="5" fill="#38bdf8"/>
+                            <path d="M85 41V58" stroke="#38bdf8" stroke-width="4" stroke-dasharray="2 2"/>
+                            <circle cx="85" cy="62" r="3" fill="#38bdf8"/>
+                            <!-- Gradient Definitions -->
+                            <defs>
+                                <linearGradient id="logo_grad" x1="15" y1="20" x2="85" y2="75" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818cf8"/>
+                                    <stop offset="0.5" stop-color="#6366f1"/>
+                                    <stop offset="1" stop-color="#38bdf8"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-none flex items-center gap-1.5">
+                        ClassBunk
+                        <span class="text-[10px] uppercase font-extrabold tracking-wider bg-brand-500/20 text-brand-400 border border-brand-500/30 px-1.5 py-0.5 rounded-md">v2.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Smart Attendance & Target Engine</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openModal('addSubjectModal')" class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-brand-600/25 transition-all">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span class="hidden sm:inline">Add Subject</span>
+                </button>
+                
+                <button onclick="openModal('settingsModal')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700/50" title="Settings & Data Management">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8">
+        
+        <!-- Global Summary Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Overall Percentage Card -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-brand-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Attendance</span>
+                    <div class="text-3xl font-extrabold text-white mt-1" id="overallPercentage">0%</div>
+                    <p class="text-xs text-slate-400 mt-1" id="overallClassesCount">0 of 0 classes attended</p>
+                </div>
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path id="overallRing" class="text-brand-500 progress-ring-circle" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <i class="fa-solid fa-graduation-cap absolute text-slate-400 text-sm"></i>
+                </div>
+            </div>
+
+            <!-- Health Status -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4" id="statusCardBorder">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Health</span>
+                    <div class="text-xl font-bold text-white mt-1" id="overallStatus">Analyzing...</div>
+                    <p class="text-xs text-slate-400 mt-1" id="overallStatusSub">Based on target limits</p>
+                </div>
+                <div id="overallStatusIcon" class="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-slate-800 text-slate-400">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <!-- Total Bunk Pool -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-emerald-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Available Bunks</span>
+                    <div class="text-3xl font-extrabold text-emerald-400 mt-1" id="totalSafeBunks">0</div>
+                    <p class="text-xs text-slate-400 mt-1">Safe lectures across all subjects</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-couch"></i>
+                </div>
+            </div>
+
+            <!-- Action Required Count -->
+            <div class="glass-panel rounded-2xl p-5 flex items-center justify-between border-l-4 border-l-rose-500">
+                <div>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Action Needed</span>
+                    <div class="text-3xl font-extrabold text-rose-400 mt-1" id="totalClassesRequired">0</div>
+                    <p class="text-xs text-slate-400 mt-1">Must attend to recover target</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-person-running"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Tap Daily Timetable Logger -->
+        <section class="glass-panel rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> Daily Schedule Quick-Tap
+                    </h2>
+                    <p class="text-xs text-slate-400">Quickly log attendance for your classes today in one click.</p>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700 self-start sm:self-auto" id="todayDateStr">Today</span>
+            </div>
+
+            <div id="quickLoggerContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Dynamically populated daily subjects -->
+            </div>
+        </section>
+
+        <!-- Subjects Grid Section -->
+        <section class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-brand-500"></i> Course Subjects
+                    </h2>
+                    <p class="text-xs text-slate-400">Track and calculate target attendances for each individual subject.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="subjectSearch" oninput="renderSubjects()" placeholder="Search subject..." class="bg-slate-800/80 border border-slate-700/80 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors w-full sm:w-48">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Cards Container -->
+            <div id="subjectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Subject cards will be rendered here dynamically -->
+            </div>
+        </section>
+
+        <!-- Dynamic Target Calculator Simulator Tool -->
+        <section class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="max-w-3xl">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-indigo-400"></i> "What-If" Scenario Simulator
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Select a subject and test custom future scenarios to plan your leaves or recovery.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Select Subject</label>
+                        <select id="simSubjectSelect" onchange="runSimulation()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                            <!-- Options injected -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Target Goal: <span id="simTargetVal" class="text-brand-400 font-bold">75%</span></label>
+                        <input type="range" id="simTargetSlider" min="50" max="95" value="75" oninput="document.getElementById('simTargetVal').innerText = this.value + '%'; runSimulation();" class="w-full accent-brand-500 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-2">Hypothetical Next Classes</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="simUpcomingAttended" min="0" value="5" oninput="runSimulation()" class="w-1/2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white text-center" placeholder="+ Attend">
+                            <input type="number" id="simUpcomingMissed" min="0" value="0" oninput="runSimulation()" class="w-1/2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white text-center" placeholder="+ Miss">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Output Box -->
+                <div id="simResultBox" class="mt-6 p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-start gap-4">
+                    <div class="p-3 rounded-xl bg-brand-500/10 text-brand-400 text-lg flex-shrink-0">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-semibold text-white" id="simResultTitle">Simulation Result</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed" id="simResultDesc">Select options above to compute projected target statistics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <p>© <span id="yearSpan"></span> ClassBunk. Designed for student freedom & smart academic planning.</p>
+            <div class="flex items-center gap-4">
+                <button onclick="resetToSampleData()" class="hover:text-slate-300 transition-colors">Reset to Sample Data</button>
+                <span>•</span>
+                <button onclick="exportData()" class="hover:text-slate-300 transition-colors">Export Backup</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ADD/EDIT SUBJECT MODAL -->
+    <div id="addSubjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="closeModal('addSubjectModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1" id="modalTitle">Add New Subject</h3>
+            <p class="text-xs text-slate-400 mb-6">Enter current attendance stats to track target bunks.</p>
+
+            <form id="subjectForm" onsubmit="handleSubjectSubmit(event)" class="space-y-4">
+                <input type="hidden" id="subId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Subject Name *</label>
+                    <input type="text" id="subName" required placeholder="e.g. Engineering Mathematics-I" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Total Held Classes</label>
+                        <input type="number" id="subTotal" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Classes Attended</label>
+                        <input type="number" id="subAttended" min="0" value="0" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Minimum Target Percentage (%)</label>
+                    <input type="number" id="subTarget" mi
