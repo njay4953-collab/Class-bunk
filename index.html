@@ -88,6 +88,199 @@
     <section>
       <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Cloud</h3>
       <div class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm">
+        <p id="sbStatus" class="font-semibold">○ Supabase not configured</p>
+        <button data-action="open-auth" class="mt-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 underline">Configure / Sign in</button>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Data</h3>
+      <button data-action="export-data" class="w-full mb-2 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">⬇️ Export Backup (JSON)</button>
+      <button data-action="reset-all" class="w-full py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold">🗑️ Reset All App Data</button>
+    </section>
+  </div>
+</aside>
+<!-- ============ MAIN ============ -->
+<main class="max-w-3xl mx-auto px-4 py-5">
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view active">
+    <div class="grid grid-cols-3 gap-3">
+      <div class="col-span-3 sm:col-span-1 rounded-2xl p-4 bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg">
+        <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Overall Attendance</p>
+        <p id="overallPct" class="text-4xl font-extrabold mt-1">0%</p>
+        <p id="overallCount" class="text-xs opacity-80 mt-1">0 / 0 classes</p>
+      </div>
+      <div class="col-span-2 sm:col-span-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Health Status</p>
+        <p id="healthStatus" class="text-lg font-extrabold mt-2">—</p>
+        <p id="healthHint" class="text-xs text-slate-500 mt-1">Cutoff: 75%</p>
+      </div>
+      <div class="col-span-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Available Bunks</p>
+        <p id="bunkCount" class="text-3xl font-extrabold mt-1">0</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-6 mb-3">
+      <h2 class="text-lg font-extrabold">Subjects</h2>
+      <button data-action="add-subject" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Subject</button>
+    </div>
+    <div id="subjectList" class="space-y-3"></div>
+  </section>
+
+  <!-- TIMETABLE -->
+  <section id="view-timetable" class="view">
+    <h2 class="text-lg font-extrabold">Timetable &amp; Holiday Engine</h2>
+    <p class="text-sm text-slate-500 mt-1">One line per day. Use <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Day: Subject, Subject x2</code>. Mark off days with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Sat: Holiday</code> and extra holidays with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Holiday: Diwali Mon x2</code>.</p>
+    <textarea id="ttInput" rows="9" spellcheck="false"
+      class="w-full mt-3 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-indigo-500 outline-none text-sm font-mono"
+      placeholder="Mon: Maths, Physics, DSA&#10;Tue: DSA x2, Chemistry Lab&#10;Wed: Maths, Physics&#10;Thu: Electronics, DSA&#10;Fri: Maths, Chemistry&#10;Sat: Holiday&#10;Sun: Holiday&#10;Holiday: Diwali Mon x1"></textarea>
+    <div class="flex items-center gap-3 mt-3">
+      <label class="text-sm font-semibold">Weeks</label>
+      <input id="ttWeeks" type="number" min="1" max="30" value="16" class="w-20 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none text-sm" />
+      <button data-action="compute-tt" class="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">⚙️ Compute Schedule</button>
+    </div>
+    <div id="ttResult" class="mt-5"></div>
+  </section>
+
+  <!-- SYLLABUS -->
+  <section id="view-syllabus" class="view">
+    <h2 class="text-lg font-extrabold">Syllabus &amp; PYQ Knowledge Hub</h2>
+    <select id="sylSubject" class="w-full mt-3 px-3 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 outline-none text-sm font-semibold"></select>
+    <div class="flex justify-end mt-3">
+      <button data-action="add-unit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Chapter / Unit</button>
+    </div>
+    <div id="sylList" class="mt-3 space-y-3"></div>
+  </section>
+
+  <!-- MENTOR -->
+  <section id="view-mentor" class="view">
+    <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col" style="height:65vh">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="text-sm font-extrabold">🤖 AI Mentor</h2>
+          <p class="text-[11px] text-slate-500">Active model: <span id="activeModel" class="font-semibold text-indigo-600 dark:text-indigo-300">gemini-2.5-flash</span></p>
+        </div>
+        <button data-action="clear-chat" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800">Clear Chat</button>
+      </div>
+      <div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth"></div>
+      <form id="chatForm" class="p-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
+        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about attendance, topics, exam prep…"
+          class="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none text-sm focus:ring-2 focus:ring-indigo-500" />
+        <button id="chatSend" type="submit" class="px-5 rounded-xl bg-indigo-600 text-white font-semibold text-sm active:scale-95 transition">Send</button>
+      </form>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-3" id="quickPrompts">
+      <button data-quick="Based on my attendance, which subjects should I prioritise this week?" class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">📊 Prioritise subjects</button>
+      <button data-quick="Create a 7-day study plan from my syllabus topics and PYQs." class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">🗓️ 7-day plan</button>
+      <button data-quick="How many classes can I safely bunk and still stay above 75%?" class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">😎 Safe bunks</button>
+    </div>
+  </section>
+</main>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="glass fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 dark:border-slate-800" style="padding-bottom:env(safe-area-inset-bottom)">
+  <div class="max-w-3xl mx-auto grid grid-cols-4">
+    <button class="nav-btn active flex flex-col items-center py-2 text-slate-500" data-view="dashboard"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">📊</span><span class="text-[11px] font-semibold mt-0.5">Dashboard</span></button>
+    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="timetable"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">🗓️</span><span class="text-[11px] font-semibold mt-0.5">Timetable</span></button>
+    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="syllabus"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">📚</span><span class="text-[11px] font-semibold mt-0.5">Syllabus</span></button>
+    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="mentor"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">🤖</span><span class="text-[11px] font-semibold mt-0.5">Mentor</span></button>
+  </div>
+</nav>
+
+<!-- ============ MODAL + TOASTS ============ -->
+<div id="modalRoot" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"></div>
+<div id="toastRoot" class="fixed left-1/2 -translate-x-1/2 z-[70] flex flex-col gap-2 items-center pointer-events-none" style="bottom:calc(88px + env(safe-area-inset-bottom))"></div>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0f172a" />
+<title>ClassBunk v4.0 Enterprise Pro – BKBIET Pilani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  html, body { font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .glass { background: rgba(255,255,255,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .dark .glass { background: rgba(15,23,42,.72); }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn .25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes bounceDot { 0%,80%,100% { transform: scale(.6); opacity: .5; } 40% { transform: scale(1); opacity: 1; } }
+  .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background: currentColor; margin-right:3px; animation: bounceDot 1.2s infinite ease-in-out; }
+  .dot:nth-child(2){ animation-delay:.15s } .dot:nth-child(3){ animation-delay:.3s }
+  #drawer { transform: translateX(-100%); transition: transform .28s ease; }
+  #drawer.open { transform: translateX(0); }
+  #drawerBackdrop { opacity: 0; pointer-events: none; transition: opacity .28s ease; }
+  #drawerBackdrop.open { opacity: 1; pointer-events: auto; }
+  .nav-btn.active { color: #6366f1; }
+  .nav-btn.active .nav-ico { background: rgba(99,102,241,.14); }
+  .prose-chat p { margin: 0 0 .5rem; } .prose-chat p:last-child { margin-bottom: 0; }
+  .prose-chat ul { list-style: disc; padding-left: 1.2rem; margin: .25rem 0 .5rem; }
+  .prose-chat code { background: rgba(100,116,139,.2); padding: 1px 5px; border-radius: 5px; font-size: .85em; }
+  .prose-chat pre { background: rgba(2,6,23,.85); color:#e2e8f0; padding: .6rem .75rem; border-radius: .6rem; overflow-x:auto; font-size:.8rem; margin:.4rem 0; }
+  .prose-chat pre code { background: transparent; padding: 0; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: rgba(100,116,139,.4); border-radius: 6px; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased">
+
+<!-- ============ HEADER ============ -->
+<header class="glass sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+    <button data-action="open-drawer" aria-label="Open menu" class="w-10 h-10 rounded-xl bg-slate-200/70 dark:bg-slate-800 flex items-center justify-center text-xl active:scale-95 transition">≡</button>
+    <div class="flex-1 min-w-0">
+      <h1 class="text-base font-extrabold leading-tight truncate">ClassBunk v4.0 Pro</h1>
+      <span class="inline-block text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-300">BKBIET Pilani Academic Engine</span>
+    </div>
+    <button id="authBtn" data-action="open-auth" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95 transition whitespace-nowrap">🔑 Supabase Auth</button>
+  </div>
+</header>
+
+<!-- ============ DRAWER ============ -->
+<div id="drawerBackdrop" data-action="close-drawer" class="fixed inset-0 z-40 bg-black/50"></div>
+<aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-[85%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto" aria-hidden="true">
+  <div class="p-5 space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-extrabold">Settings</h2>
+      <button data-action="close-drawer" aria-label="Close menu" class="w-9 h-9 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-lg">✕</button>
+    </div>
+
+    <section>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Theme</h3>
+      <button data-action="toggle-theme" class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+        <span class="text-sm font-semibold" id="themeLabel">Dark mode</span>
+        <span id="themeIcon" class="text-xl">🌙</span>
+      </button>
+    </section>
+
+    <section>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Gemini API Key</h3>
+      <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Paste your Gemini API key"
+        class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none text-sm" />
+      <div class="flex gap-2 mt-2">
+        <button data-action="save-key" class="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold">Save Key</button>
+        <button data-action="clear-key" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Clear</button>
+      </div>
+      <p id="keyStatus" class="text-xs mt-2 font-semibold"></p>
+      <p class="text-[11px] text-slate-500 mt-1">Stored in session only. Get a key at aistudio.google.com/apikey.</p>
+    </section>
+
+    <section>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Cloud</h3>
+      <div class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm">
         <p id="sbStatus" class="font-semibold">○ Supabase not connected</p>
         <button data-action="open-auth" class="mt-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 underline">Configure / Sign in</button>
       </div>
@@ -248,6 +441,119 @@ const Store = {
       };
     } else {
       // Default sample subjects for BKBIET Pilani ECE / Engineering students
+      this.state.subjects = [
+        { id: uid(), name: 'Engineering Mathematics I', attended: 22, total: 28 },
+        { id: uid(), name: 'Engineering Physics', attended: 18, total: 24 },
+        { id: uid(), name: 'Basic Electronics', attended: 20, total: 25 }
+      ];
+    }
+  },
+  save() {
+    try { localStorage.setItem(Config.LS_KEY, JSON.stringify(this.state)); }
+    catch (e) { UI.toast('Storage full or blocked', 'error'); }
+  },
+  replace(obj) { this.state = obj; this.save(); }
+};
+
+const UI = {
+  toast(msg, kind = 'info') {
+    const colors = { info: 'bg-slate-800 text-white', success: 'bg-emerald-600 text-white', error: 'bg-rose-600 text-white' };
+    const el = document.createElement('div');
+    el.className = `px-4 py-2 rounded-xl shadow-lg text-sm font-semibold ${colors[kind] || colors.info} transition-all duration-300`;
+    el.textContent = msg;
+    $('#toastRoot').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; }, 2300);
+    setTimeout(() => el.remove(), 2700);
+  },
+
+  openDrawer() { $('#drawer').classList.add('open'); $('#drawerBackdrop').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); this.refreshSettings(); },
+  closeDrawer() { $('#drawer').classList.remove('open'); $('#drawerBackdrop').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); },
+
+  setTheme(mode) {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    localStorage.setItem(Config.LS_THEME, mode);
+    $('#themeLabel').textContent = mode === 'dark' ? 'Dark mode' : 'Light mode';
+    $('#themeIcon').textContent = mode === 'dark' ? '🌙' : '☀️';
+    const meta = $('meta[name="theme-color"]'); if (meta) meta.content = mode === 'dark' ? '#0f172a' : '#f8fafc';
+  },
+  toggleTheme() { this.setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); },
+
+  refreshSettings() {
+    const has = !!Mentor.getKey();
+    const el = $('#keyStatus');
+    el.textContent = has ? '● Gemini key configured' : '○ No Gemini key set';
+    el.className = 'text-xs mt-2 font-semibold ' + (has ? 'text-emerald-500' : 'text-rose-500');
+    Cloud.renderStatus();
+  },
+
+  showView(name) {
+    $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+    if (name === 'syllabus') Syllabus.render();
+    if (name === 'mentor') Mentor.scrollBottom();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  form({ title, fields, submitText = 'Save', validate }) {
+    return new Promise(resolve => {
+      const root = $('#modalRoot');
+      const inputs = fields.map(f => {
+        const base = 'w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none text-sm';
+  <script>
+'use strict';
+/* =====================================================================
+   ClassBunk v4.0 Enterprise Pro — Part 3: Core, Store, UI, Dashboard
+   ===================================================================== */
+
+const Config = {
+  LS_KEY: 'classbunk_v4_state',
+  LS_THEME: 'classbunk_v4_theme',
+  LS_CHAT: 'classbunk_v4_chat',
+  LS_SB: 'classbunk_v4_supabase',
+  SS_KEY: 'classbunk_v4_gemini_key',
+  DEFAULT_GEMINI_KEY: 'AQ.Ab8RN6Kx933NQXaJVUUTVv2Eu9QPc4UpNEIhXo-SNpyO8RNfdg',
+  CUTOFF: 75,
+  MODELS: [
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' }
+  ],
+  ENDPOINT: (m, k) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(k)}`
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pctOf = (a, t) => (t > 0 ? (a / t) * 100 : 0);
+const fmtPct = (n) => (Number.isInteger(n) ? n : n.toFixed(1)) + '%';
+const safeParse = (s, fb) => { try { const v = JSON.parse(s); return v ?? fb; } catch { return fb; } };
+
+function bunkMath(a, t) {
+  const r = Config.CUTOFF / 100;
+  if (t === 0) return { bunks: 0, need: 0 };
+  if (pctOf(a, t) >= Config.CUTOFF) return { bunks: Math.max(0, Math.floor(a / r - t + 1e-9)), need: 0 };
+  return { bunks: 0, need: Math.max(1, Math.ceil((r * t - a) / (1 - r) - 1e-9)) };
+}
+function tone(p, t) {
+  if (t === 0) return { bar: 'bg-slate-400', badge: 'bg-slate-500/15 text-slate-500' };
+  if (p >= Config.CUTOFF + 5) return { bar: 'bg-emerald-500', badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300' };
+  if (p >= Config.CUTOFF) return { bar: 'bg-amber-500', badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-300' };
+  return { bar: 'bg-rose-500', badge: 'bg-rose-500/15 text-rose-600 dark:text-rose-300' };
+}
+
+const Store = {
+  state: { subjects: [], syllabus: {}, timetable: { text: '', weeks: 16, projection: {}, updatedAt: null }, selectedSyllabus: '' },
+  load() {
+    const saved = safeParse(localStorage.getItem(Config.LS_KEY), null);
+    if (saved && typeof saved === 'object') {
+      this.state = {
+        subjects: Array.isArray(saved.subjects) ? saved.subjects : [],
+        syllabus: saved.syllabus && typeof saved.syllabus === 'object' ? saved.syllabus : {},
+        timetable: Object.assign({ text: '', weeks: 16, projection: {}, updatedAt: null }, saved.timetable || {}),
+        selectedSyllabus: saved.selectedSyllabus || ''
+      };
+    } else {
       this.state.subjects = [
         { id: uid(), name: 'Engineering Mathematics I', attended: 22, total: 28 },
         { id: uid(), name: 'Engineering Physics', attended: 18, total: 24 },
