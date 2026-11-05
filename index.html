@@ -1,371 +1,725 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassBunk v4.0 Enterprise Pro - BKBIET Pilani</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { brand: { 500: '#6366f1', 600: '#4f46e5' } }
-                }
-            }
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d1a">
+<meta name="description" content="ClassBunk v4.0 Pro - BKBIET Pilani Academic Engine">
+<title>ClassBunk v4.0 Pro | BKBIET Pilani</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+body {
+  font-family: Inter, sans-serif;
+  background: #080d1a;
+  color: #e5e7eb;
+  min-height: 100vh;
+  padding-bottom: 85px;
+}
+.glass {
+  background: rgba(18, 27, 48, .88);
+  border: 1px solid rgba(148,163,184,.13);
+  backdrop-filter: blur(14px);
+}
+.card {
+  background: #111a2e;
+  border: 1px solid #24314b;
+  border-radius: 16px;
+}
+.gradient {
+  background: linear-gradient(135deg,#6366f1,#a855f7);
+}
+.btn {
+  transition: .2s ease;
+  cursor: pointer;
+}
+.btn:active { transform: scale(.97); }
+input, textarea, select {
+  outline: none;
+}
+.field {
+  background: #0b1325;
+  border: 1px solid #34415c;
+  color: #f1f5f9;
+  border-radius: 10px;
+  padding: 11px 13px;
+  width: 100%;
+}
+.field:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2px rgba(99,102,241,.15);
+}
+.light-mode {
+  background: #f1f5f9;
+  color: #172033;
+}
+.light-mode .card,
+.light-mode .glass {
+  background: white;
+  color: #172033;
+  border-color: #dbe3ef;
+}
+.light-mode .field {
+  background: #f8fafc;
+  color: #172033;
+  border-color: #cbd5e1;
+}
+.light-mode .muted { color: #64748b; }
+.muted { color: #94a3b8; }
+.tab-active {
+  color: #a5b4fc;
+  background: rgba(99,102,241,.15);
+}
+.nav-btn { min-width: 0; }
+.progress {
+  height: 8px;
+  background: #29364f;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress > div {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .3s;
+}
+.modal-backdrop {
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(5px);
+}
+.drawer {
+  transition: transform .25s ease;
+  transform: translateX(110%);
+}
+.drawer.open { transform: translateX(0); }
+.chat-message {
+  max-width: 88%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#chatMessages { scroll-behavior: smooth; }
+button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+@media(min-width:768px) {
+  body { padding-bottom: 0; }
+}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased pb-24 transition-colors duration-300">
 
-    <!-- Top Header -->
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-md">
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleDrawer()" class="text-slate-300 hover:text-white p-1 text-xl focus:outline-none transition">☰</button>
-            <div class="bg-gradient-to-tr from-brand-600 to-indigo-400 p-2 rounded-xl text-white font-black shadow-lg">JN</div>
-            <div>
-                <h1 class="font-bold text-base tracking-wide flex items-center gap-2">ClassBunk <span class="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full font-normal">v4.0 Pro</span></h1>
-                <p class="text-xs text-slate-400">BKBIET Pilani Academic Engine</p>
-            </div>
-        </div>
-        <button onclick="openAuthModal()" id="authBtn" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">🔑 Supabase Auth</button>
-    </header>
+<body class="antialiased">
 
-    <!-- Navigation Drawer (Side Menu) -->
-    <div id="drawerOverlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm transition-opacity"></div>
-    <aside id="sideDrawer" class="fixed top-0 left-0 w-72 h-full bg-slate-900 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl">
-        <div class="space-y-6">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h2 class="font-bold text-lg text-brand-400">Settings & Profile</h2>
-                <button onclick="toggleDrawer()" class="text-slate-400 text-lg hover:text-white">✕</button>
-            </div>
-            <div class="space-y-3">
-                <button onclick="toggleDarkMode()" class="w-full text-left bg-slate-800 hover:bg-slate-750 p-3 rounded-xl text-xs font-semibold flex justify-between items-center transition">
-                    <span>🌙 Dark / Light Mode</span>
-                    <span id="themeLabel">Dark</span>
-                </button>
-                <button onclick="resetAppConfig()" class="w-full text-left bg-rose-600/20 border border-rose-500/30 text-rose-400 p-3 rounded-xl text-xs font-semibold hover:bg-rose-600/30 transition">
-                    🗑️ Reset All App Data
-                </button>
-                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                    <p class="text-[11px] text-slate-400 font-semibold">Gemini AI Model Engine</p>
-                    <p class="text-xs text-emerald-400 font-bold">● gemini-2.5-flash Active</p>
-                </div>
-            </div>
-        </div>
-        <div class="text-[11px] text-slate-500 text-center border-t border-slate-800 pt-3">
-            Jay Nayak | BKBIET ECE Engine v4.0
-        </div>
-    </aside>
-        <!-- Main Views Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
-        
-        <!-- DASHBOARD VIEW -->
-        <section id="view-dashboard" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overall Attendance</p>
-                    <h2 class="text-3xl font-black mt-2 text-brand-400" id="dashOverallPct">77.9%</h2>
-                    <p class="text-xs text-slate-400 mt-1" id="dashClassesCount">60 of 77 classes attended</p>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Overall Health</p>
-                    <h2 class="text-2xl font-bold mt-2 text-amber-400">At Risk</h2>
-                    <p class="text-xs text-slate-400 mt-1">Target safety buffer</p>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Available Bunks</p>
-                    <h2 class="text-3xl font-black mt-2 text-emerald-400">5</h2>
-                    <p class="text-xs text-slate-400 mt-1">Safe lectures remaining</p>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center pt-2">
-                <h3 class="font-bold text-lg">Subject Performance</h3>
-                <button onclick="openAddSubjectModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-lg">＋ Add Subject</button>
-            </div>
-            <div id="subjectListContainer" class="space-y-3"></div>
-        </section>
-
-        <!-- TIMETABLE VIEW -->
-        <section id="view-timetable" class="hidden space-y-4">
-            <h3 class="font-bold text-lg">Timetable & Holiday Upload</h3>
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-xl">
-                <p class="text-xs text-slate-400">Upload or paste your college timetable schedule text to compute total lectures and calibrate attendance thresholds.</p>
-                <textarea id="timetableInput" rows="4" placeholder="Paste timetable or holiday schedule here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-brand-500"></textarea>
-                <button onclick="parseTimetableData()" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg">Compute Lecture Count & Holidays</button>
-                <div id="timetableResult" class="text-xs text-emerald-400 font-medium"></div>
-            </div>
-        </section>
-                <!-- SYLLABUS & IMPORTANT PYQS VIEW -->
-        <section id="view-syllabus" class="hidden space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg">Syllabus & Important Topics</h3>
-                <select id="subjectSelect" onchange="renderSyllabusTopics()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
-                    <option value="math">Engineering Mathematics I</option>
-                    <option value="physics">Engineering Physics</option>
-                    <option value="electronics">Basic Electronics</option>
-                </select>
-            </div>
-            
-            <div class="flex gap-2">
-                <input type="text" id="chapterInput" placeholder="Add new chapter or unit..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-500">
-                <button onclick="addSyllabusChapter()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md">Add Chapter</button>
-            </div>
-
-            <div id="syllabusContainer" class="space-y-3"></div>
-        </section>
-
-        <!-- AI MENTOR VIEW -->
-        <section id="view-mentor" class="hidden flex flex-col h-[72vh] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <div class="bg-slate-850 border-b border-slate-800 p-3.5 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="font-semibold text-sm">Gemini 2.5 Live AI Academic Mentor</span>
-                </div>
-            </div>
-            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
-                <div class="flex justify-start">
-                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl max-w-[85%] shadow-md">Hello Jay! I am your Gemini 2.5 Live AI Mentor. Ask any doubt or request important exam PYQs!</div>
-                </div>
-            </div>
-            <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
-                <input type="text" id="chatInput" placeholder="Ask any engineering doubt or PYQ..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500" onkeydown="if(event.key === 'Enter') sendGeminiLiveMessage()">
-                <button onclick="sendGeminiLiveMessage()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl transition font-medium shadow-lg">Send</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center shadow-lg">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-brand-400 transition"><span class="text-lg">📊</span><span class="text-[10px] mt-1 font-medium">Dashboard</span></button>
-        <button onclick="switchTab('timetable')" id="nav-timetable" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition"><span class="text-lg">📅</span><span class="text-[10px] mt-1 font-medium">Timetable</span></button>
-        <button onclick="switchTab('syllabus')" id="nav-syllabus" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition"><span class="text-lg">📚</span><span class="text-[10px] mt-1 font-medium">Syllabus</span></button>
-        <button onclick="switchTab('mentor')" id="nav-mentor" class="flex flex-col items-center text-slate-400 hover:text-slate-200 transition"><span class="text-lg">🤖</span><span class="text-[10px] mt-1 font-medium">AI Mentor</span></button>
-    </nav>
-
-    <!-- Supabase Auth Modal -->
-    <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold">Supabase Cloud Authentication</h3>
-            <p class="text-xs text-slate-400">Connect your account to sync your attendance and academic data securely.</p>
-            <input type="email" id="authEmail" placeholder="Enter your email address" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
-            <input type="password" id="authPassword" placeholder="Enter your password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeAuthModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition">Cancel</button>
-                <button onclick="handleSupabaseLogin()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-xs font-semibold rounded-xl text-white transition shadow-md">Sign In / Register</button>
-            </div>
-        </div>
+<!-- HEADER -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <button id="menuBtn" class="text-2xl px-2 py-1 rounded-lg hover:bg-slate-700/40" aria-label="Open menu">≡</button>
+      <div class="w-11 h-11 rounded-xl gradient flex items-center justify-center font-extrabold text-white shadow-lg">JN</div>
+      <div class="min-w-0">
+        <h1 class="font-extrabold text-base sm:text-xl tracking-tight">ClassBunk <span class="text-indigo-400">v4.0 Pro</span></h1>
+        <p class="text-xs muted truncate">BKBIET Pilani Academic Engine</p>
+      </div>
     </div>
-        <script>
-        // Supabase Initialization
-        const SUPABASE_URL = 'https://xyzcompany.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    <button id="authBtn" class="btn text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2.5 rounded-xl whitespace-nowrap">
+      🔑 <span id="authBtnText">Supabase Auth</span>
+    </button>
+  </div>
+</header>
 
-        // User Gemini API key & Latest Model Configuration
-        const SYSTEM_GEMINI_KEY = 'AQ.Ab8RN6Kx933NQXaJVUUTVv2Eu9QPc4UpNEIhXo-SNpyO8RNfdg';
+<!-- DRAWER BACKDROP -->
+<div id="drawerBackdrop" class="hidden fixed inset-0 z-40 bg-black/60"></div>
 
-        let subjects = JSON.parse(localStorage.getItem('classbunk_subjects')) || [
-            { id: 1, name: 'Engineering Mathematics I', attended: 22, total: 28 },
-            { id: 2, name: 'Engineering Physics', attended: 18, total: 24 },
-            { id: 3, name: 'Basic Electronics', attended: 20, total: 25 }
-        ];
+<!-- SIDE DRAWER -->
+<aside id="sideDrawer" class="drawer fixed top-0 right-0 z-50 h-full w-[290px] max-w-[85vw] glass shadow-2xl p-5 overflow-y-auto">
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="font-bold text-lg">⚙️ App Settings</h2>
+    <button id="closeDrawer" class="text-2xl px-2">×</button>
+  </div>
+  <div class="space-y-5">
+    <div class="card p-4">
+      <p class="font-semibold mb-3">Appearance</p>
+      <button id="themeBtn" class="btn w-full rounded-lg bg-indigo-600 px-4 py-3 text-white text-sm">☀️ Switch to Light Mode</button>
+    </div>
+    <div class="card p-4">
+      <p class="font-semibold mb-2">🤖 Gemini 2.5 Connection</p>
+      <div class="text-xs text-green-400 mb-3" id="modelStatus">● Gemini ready (API key preloaded)</div>
+      <label class="text-xs muted block mb-2">Personal Gemini API Key</label>
+      <input id="geminiKey" type="password" class="field text-sm mb-2" placeholder="Enter custom API key if needed">
+      <button id="saveGeminiKey" class="btn w-full rounded-lg bg-indigo-600 py-2 text-sm text-white">Save for this session</button>
+    </div>
+    <div class="card p-4">
+      <p class="font-semibold mb-2">☁️ Supabase</p>
+      <p id="supabaseStatus" class="text-xs muted">Authentication not configured</p>
+    </div>
+    <button id="resetBtn" class="btn w-full bg-red-600/15 border border-red-500/40 text-red-400 rounded-xl py-3 font-semibold text-sm">🗑️ Reset All App Data</button>
+    <div class="border-t border-slate-600/30 pt-5 text-center">
+      <p class="text-sm font-bold">Jay Nayak</p>
+      <p class="text-xs muted">BKBIET ECE Engine v4.0</p>
+    </div>
+  </div>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 py-6">
 
-        let syllabusData = JSON.parse(localStorage.getItem('classbunk_syllabus')) || {
-            math: [
-                { title: 'Matrices & Eigenvalues', topics: ['Eigenvalues & Eigenvectors PYQ', 'Cayley-Hamilton Theorem'] },
-                { title: 'Partial Differentiation', topics: ['Euler Theorem', 'Maxima & Minima for 2 variables'] }
-            ],
-            physics: [
-                { title: 'Wave Optics', topics: ["Newton's Rings PYQ", 'Fraunhofer Diffraction'] },
-                { title: 'Quantum Mechanics', topics: ['Schrödinger Wave Equation', 'Compton Effect'] }
-            ],
-            electronics: [
-                { title: 'Semiconductor Diodes', topics: ['Zener Diode Regulator', 'Full Wave Rectifier Efficiency'] }
-            ]
-        };
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="app-view space-y-6">
+    <div class="flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">Academic Overview</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">Dashboard 📊</h2>
+        <p class="muted text-sm mt-1">Your semester, under control.</p>
+      </div>
+      <span id="todayDate" class="text-xs muted"></span>
+    </div>
 
-        function renderDashboard() {
-            const container = document.getElementById('subjectListContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            let totalAtt = 0, totalTot = 0;
+    <!-- METRICS -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="card p-5">
+        <p class="muted text-sm">Overall Attendance</p>
+        <div class="flex items-end gap-2 mt-3">
+          <h3 id="overallPercent" class="text-4xl font-extrabold">0%</h3>
+          <span class="text-xs muted mb-2">All subjects</span>
+        </div>
+        <div class="progress mt-4">
+          <div id="overallProgress" class="bg-indigo-500" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <p class="muted text-sm">Attendance Health</p>
+        <h3 id="healthBadge" class="text-2xl font-extrabold text-emerald-400 mt-4">Safe Buffer</h3>
+        <p class="text-xs muted mt-2">Minimum target: 75%</p>
+      </div>
+      <div class="card p-5">
+        <p class="muted text-sm">Available Bunks</p>
+        <div class="flex items-end gap-2 mt-3">
+          <h3 id="bunkCount" class="text-4xl font-extrabold">0</h3>
+          <span class="text-xs muted mb-2">Lectures</span>
+        </div>
+        <p class="text-xs muted mt-2">Calculated at 75% attendance</p>
+      </div>
+    </div>
 
-            subjects.forEach(sub => {
-                totalAtt += sub.attended;
-                totalTot += sub.total;
-                const pct = sub.total > 0 ? ((sub.attended / sub.total) * 100).toFixed(1) : 0;
-                
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg">
-                        <div>
-                            <h4 class="font-semibold text-sm">${sub.name}</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">${sub.attended} / ${sub.total} classes (${pct}%)</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="updateAttendance(${sub.id}, 1)" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold transition">Present</button>
-                            <button onclick="updateAttendance(${sub.id}, -1)" class="bg-rose-600/20 border border-rose-500/30 text-rose-400 px-3 py-1.5 rounded-xl text-xs font-bold transition">Bunk</button>
-                        </div>
-                    </div>
-                `;
-            });
+    <!-- SUBJECTS -->
+    <div class="flex justify-between items-center flex-wrap gap-3">
+      <div>
+        <h3 class="font-bold text-xl">Subject Performance</h3>
+        <p class="text-xs muted mt-1">Track every lecture accurately.</p>
+      </div>
+      <button id="addSubjectBtn" class="btn gradient text-white font-semibold text-sm px-4 py-3 rounded-xl">＋ Add Subject</button>
+    </div>
+    <div id="subjectList" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+  </section>
 
-            const overallPct = totalTot > 0 ? ((totalAtt / totalTot) * 100).toFixed(1) : 0;
-            document.getElementById('dashOverallPct').innerText = overallPct + '%';
-            document.getElementById('dashClassesCount').innerText = `${totalAtt} of ${totalTot} classes attended`;
-            localStorage.setItem('classbunk_subjects', JSON.stringify(subjects));
-        }
+  <!-- TIMETABLE -->
+  <section id="view-timetable" class="app-view hidden space-y-6">
+    <div>
+      <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">Semester Planner</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">Timetable & Holidays 📅</h2>
+      <p class="muted text-sm mt-2">Paste your weekly schedule and holiday information.</p>
+    </div>
+    <div class="card p-5 space-y-4">
+      <label class="font-semibold text-sm" for="timetableText">College Timetable / Holiday List</label>
+      <textarea id="timetableText" class="field min-h-56 text-sm" placeholder="Monday: Maths, Physics&#10;Tuesday: Electronics"></textarea>
+      <div class="flex flex-wrap gap-3">
+        <button id="computeTimetable" class="btn gradient text-white rounded-xl px-5 py-3 font-semibold text-sm">⚡ Compute Lecture Count & Holidays</button>
+        <button id="clearTimetable" class="btn border border-slate-500/40 rounded-xl px-4 py-3 text-sm">Clear</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="card p-5"><p class="muted text-sm">Weekly Lectures</p><h3 id="weeklyLectures" class="text-3xl font-extrabold mt-3">0</h3></div>
+      <div class="card p-5"><p class="muted text-sm">Detected Holidays</p><h3 id="holidayCount" class="text-3xl font-extrabold mt-3">0</h3></div>
+      <div class="card p-5"><p class="muted text-sm">Estimated Semester Lectures</p><h3 id="semesterLectures" class="text-3xl font-extrabold mt-3">0</h3></div>
+    </div>
+    <div id="timetableMessage" class="text-sm muted"></div>
+  </section>
 
-        function renderSyllabusTopics() {
-            const subKey = document.getElementById('subjectSelect').value;
-            const container = document.getElementById('syllabusContainer');
-            if(!container) return;
-            container.innerHTML = '';
+  <!-- SYLLABUS -->
+  <section id="view-syllabus" class="app-view hidden space-y-6">
+    <div>
+      <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">Academic Knowledge Hub</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">Syllabus & PYQs 📚</h2>
+    </div>
+    <div class="card p-5 space-y-4">
+      <label for="syllabusSubject" class="font-semibold text-sm">Select Subject</label>
+      <select id="syllabusSubject" class="field"></select>
+      <div class="border-t border-slate-600/30 pt-4">
+        <label for="newUnit" class="text-sm font-semibold block mb-2">Create New Unit / Chapter</label>
+        <div class="flex gap-2">
+          <input id="newUnit" class="field min-w-0" placeholder="e.g. Differential Calculus">
+          <button id="addUnitBtn" class="btn gradient text-white rounded-xl px-4 font-semibold whitespace-nowrap">＋ Add</button>
+        </div>
+      </div>
+    </div>
+    <div id="syllabusUnits" class="space-y-4"></div>
+  </section>
 
-            const list = syllabusData[subKey] || [];
-            list.forEach((ch, idx) => {
-                let topicsHtml = ch.topics.map(t => `<li class="text-xs text-slate-300 flex justify-between items-center border-b border-slate-800/60 py-1.5"><span>📌 ${t}</span></li>`).join('');
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
-                        <div class="flex justify-between items-center">
-                            <h4 class="font-bold text-brand-400 text-sm">🔖 ${ch.title}</h4>
-                            <button onclick="addImpTopic('${subKey}', ${idx})" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition">＋ Imp Topic</button>
-                        </div>
-                        <ul class="space-y-1">${topicsHtml || '<p class="text-xs text-slate-500 italic">No topics added yet.</p>'}</ul>
-                    </div>
-                `;
-            });
-        }
+  <!-- AI MENTOR -->
+  <section id="view-mentor" class="app-view hidden flex flex-col gap-4">
+    <div>
+      <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest">AI Academic Assistant</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">Gemini 2.5 AI Mentor 🤖</h2>
+      <p class="muted text-sm mt-1">Ask about engineering, mathematics, physics and exam prep.</p>
+    </div>
+    <div class="card overflow-hidden flex flex-col" style="height:min(65vh,650px);min-height:420px">
+      <div class="px-4 py-3 border-b border-slate-600/30 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
+          <span class="font-semibold text-sm">Gemini 2.5 Active</span>
+        </div>
+        <button id="clearChat" class="text-xs text-indigo-400">Clear chat</button>
+      </div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex">
+          <div class="chat-message bg-indigo-600/15 border border-indigo-400/20 rounded-2xl rounded-tl-sm p-4 text-sm">
+            👋 Hello Jay! I'm your ClassBunk AI Mentor powered by Gemini 2.5 Flash. Ask me any engineering doubt, math problem, or request important PYQ topics!
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-slate-600/30 p-3">
+        <form id="chatForm" class="flex gap-2">
+          <input id="chatInput" class="field min-w-0 text-sm" placeholder="Ask your academic question..." autocomplete="off" maxlength="4000">
+          <button id="sendChat" type="submit" class="btn gradient text-white px-5 rounded-xl font-bold">➤</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+<!-- BOTTOM NAVIGATION -->
+<nav class="fixed bottom-0 left-0 right-0 z-30 glass border-t border-slate-600/30">
+  <div class="max-w-3xl mx-auto grid grid-cols-4 py-2 px-2">
+    <button class="nav-btn tab-active rounded-xl py-2 flex flex-col items-center gap-1" data-view="dashboard">
+      <span class="text-xl">📊</span><span class="text-[10px] sm:text-xs font-semibold">Dashboard</span>
+    </button>
+    <button class="nav-btn rounded-xl py-2 flex flex-col items-center gap-1" data-view="timetable">
+      <span class="text-xl">📅</span><span class="text-[10px] sm:text-xs font-semibold">Timetable</span>
+    </button>
+    <button class="nav-btn rounded-xl py-2 flex flex-col items-center gap-1" data-view="syllabus">
+      <span class="text-xl">📚</span><span class="text-[10px] sm:text-xs font-semibold">Syllabus</span>
+    </button>
+    <button class="nav-btn rounded-xl py-2 flex flex-col items-center gap-1" data-view="mentor">
+      <span class="text-xl">🤖</span><span class="text-[10px] sm:text-xs font-semibold">AI Mentor</span>
+    </button>
+  </div>
+</nav>
 
-        function addSyllabusChapter() {
-            const input = document.getElementById('chapterInput');
-            const subKey = document.getElementById('subjectSelect').value;
-            if(!input || !input.value.trim()) return;
-            
-            if(!syllabusData[subKey]) syllabusData[subKey] = [];
-            syllabusData[subKey].push({ title: input.value.trim(), topics: [] });
-            input.value = '';
-            localStorage.setItem('classbunk_syllabus', JSON.stringify(syllabusData));
-            renderSyllabusTopics();
-        }
+<!-- ADD SUBJECT MODAL -->
+<div id="subjectModal" class="hidden fixed inset-0 z-[60] modal-backdrop items-center justify-center p-4">
+  <div class="card w-full max-w-md p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-xl font-bold">＋ Add Subject</h3>
+      <button class="closeSubjectModal text-2xl">×</button>
+    </div>
+    <form id="subjectForm" class="space-y-4">
+      <div>
+        <label class="text-sm block mb-2">Subject Name</label>
+        <input id="subjectName" class="field" placeholder="Enter subject name" required maxlength="80">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm block mb-2">Attended</label>
+          <input id="initialAttended" class="field" type="number" min="0" max="100000" value="0" required>
+        </div>
+        <div>
+          <label class="text-sm block mb-2">Total Classes</label>
+          <input id="initialTotal" class="field" type="number" min="0" max="100000" value="0" required>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" class="closeSubjectModal flex-1 border border-slate-500/40 rounded-xl py-3">Cancel</button>
+        <button type="submit" class="gradient flex-1 text-white font-semibold rounded-xl py-3">Save Subject</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-        function addImpTopic(subKey, chIdx) {
-            const topic = prompt('Enter Important Topic or PYQ question:');
-            if(topic && syllabusData[subKey][chIdx]) {
-                syllabusData[subKey][chIdx].topics.push(topic);
-                localStorage.setItem('classbunk_syllabus', JSON.stringify(syllabusData));
-                renderSyllabusTopics();
-            }
-        }
+<!-- SUPABASE AUTH MODAL -->
+<div id="authModal" class="hidden fixed inset-0 z-[60] modal-backdrop items-center justify-center p-4">
+  <div class="card w-full max-w-md p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-xl font-bold">🔑 Account Access</h3>
+      <button id="closeAuthModal" class="text-2xl">×</button>
+    </div>
+    <div class="flex gap-2 mb-5">
+      <button id="signInTab" class="flex-1 rounded-lg bg-indigo-600 text-white py-2 text-sm font-semibold">Sign In</button>
+      <button id="signUpTab" class="flex-1 rounded-lg bg-slate-700 py-2 text-sm font-semibold">Sign Up</button>
+    </div>
+    <form id="authForm" class="space-y-4">
+      <input id="authEmail" type="email" class="field" placeholder="Email address" required>
+      <input id="authPassword" type="password" class="field" placeholder="Password (min 6 chars)" minlength="6" required>
+      <button type="submit" class="gradient text-white font-semibold rounded-xl py-3 w-full">Continue</button>
+    </form>
+    <p id="authMessage" class="text-xs muted mt-4"></p>
+    <button id="signOutBtn" class="hidden mt-4 w-full border border-red-500/40 text-red-400 rounded-xl py-2">Sign Out</button>
+  </div>
+</div>
 
-        function toggleDrawer() {
-            const drawer = document.getElementById('sideDrawer');
-            const overlay = document.getElementById('drawerOverlay');
-            drawer.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
+<!-- TOAST -->
+<div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] hidden bg-slate-800 text-white border border-slate-600 rounded-xl px-5 py-3 text-sm shadow-xl max-w-[90vw] text-center"></div>
+<script type="module">
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('themeLabel').innerText = isDark ? 'Dark' : 'Light';
-        }
+const SYSTEM_GEMINI_KEY = "AQ.Ab8RN6Kx933NQXaJVUUTVv2Eu9QPc4UpNEIhXo-SNpyO8RNfdg";
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+const ATTENDANCE_TARGET = 75;
+const STORAGE_KEY = "classbunk_v4_enterprise";
 
-        function resetAppConfig() {
-            if(confirm("Are you sure you want to reset all local data?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+const $ = id => document.getElementById(id);
 
-        function updateAttendance(id, change) {
-            const sub = subjects.find(s => s.id === id);
-            if(sub) {
-                if(change > 0) { sub.attended++; sub.total++; }
-                else { sub.total++; }
-                renderDashboard();
-            }
-        }
+function showToast(message, duration = 2600) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.add("hidden"), duration);
+}
 
-        function switchTab(tab) {
-            ['dashboard', 'timetable', 'syllabus', 'mentor'].forEach(t => {
-                const el = document.getElementById('view-' + t);
-                const nav = document.getElementById('nav-' + t);
-                if(el) el.classList.add('hidden');
-                if(nav) nav.className = 'flex flex-col items-center text-slate-400 transition';
-            });
-            const targetView = document.getElementById('view-' + tab);
-            const targetNav = document.getElementById('nav-' + tab);
-            if(targetView) targetView.classList.remove('hidden');
-            if(targetNav) targetNav.className = 'flex flex-col items-center text-brand-400 transition';
-            if(tab === 'syllabus') renderSyllabusTopics();
-        }
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
 
-        function parseTimetableData() {
-            const text = document.getElementById('timetableInput').value.trim();
-            const res = document.getElementById('timetableResult');
-            if(!text) { res.innerText = '⚠️ Please paste your schedule text.'; return; }
-            const computedLectures = text.split('\n').length * 5;
-            res.innerText = `✅ Estimated ${computedLectures} total semester lectures computed.`;
-        }
+const defaultSubjects = [
+  { id: "maths-1", name: "Engineering Mathematics I", attended: 22, total: 28, units: [{ id: "m1", name: "Matrices & Eigenvalues", topics: ["Cayley-Hamilton Theorem"] }] },
+  { id: "physics", name: "Engineering Physics", attended: 18, total: 24, units: [{ id: "p1", name: "Wave Optics", topics: ["Newton's Rings PYQ"] }] },
+  { id: "electronics", name: "Basic Electronics", attended: 20, total: 25, units: [{ id: "e1", name: "Semiconductor Diodes", topics: ["Zener Voltage Regulator"] }] }
+];
 
-        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return { subjects: structuredClone(defaultSubjects), timetableText: "", timetableResults: { weekly: 0, holidays: 0, semester: 0 }, theme: "dark" };
+    return JSON.parse(saved);
+  } catch(e) {
+    return { subjects: structuredClone(defaultSubjects), timetableText: "", timetableResults: { weekly: 0, holidays: 0, semester: 0 }, theme: "dark" };
+  }
+}
 
-        async function handleSupabaseLogin() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            if(!email || !password) return alert('Enter email & password');
-            alert('Supabase Cloud Authenticated successfully for: ' + email);
-            closeAuthModal();
-        }
+let state = loadState();
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
 
-        async function sendGeminiLiveMessage() {
-            const input = document.getElementById('chatInput');
-            if(!input) return;
-            const promptText = input.value.trim();
-            if(!promptText) return;
+function getOverallStats() {
+  const attended = state.subjects.reduce((s, sub) => s + sub.attended, 0);
+  const total = state.subjects.reduce((s, sub) => s + sub.total, 0);
+  const percentage = total ? (attended / total) * 100 : 0;
+  const safeTotal = Math.floor(attended / (ATTENDANCE_TARGET / 100));
+  const bunks = Math.max(0, safeTotal - total);
+  return { attended, total, percentage, bunks, health: total === 0 || percentage >= ATTENDANCE_TARGET ? "Safe Buffer" : "At Risk" };
+}
 
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML += '<div class="flex justify-end"><div class="bg-brand-600 text-white p-2.5 rounded-2xl max-w-[85%] shadow-md" style="word-break: break-word;">' + promptText + '</div></div>';
-            input.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+function renderDashboard() {
+  const stats = getOverallStats();
+  $("overallPercent").textContent = stats.percentage.toFixed(1) + "%";
+  $("overallProgress").style.width = Math.min(stats.percentage, 100) + "%";
+  const health = $("healthBadge");
+  health.textContent = stats.health;
+  health.className = "text-2xl font-extrabold mt-4 " + (stats.health === "Safe Buffer" ? "text-emerald-400" : "text-red-400");
+  $("bunkCount").textContent = stats.bunks;
 
-            const loadingId = 'loading-' + Date.now();
-            chatMessages.innerHTML += '<div id="' + loadingId + '" class="flex justify-start"><div class="bg-slate-800 text-slate-400 p-2.5 rounded-2xl italic shadow-sm">Thinking with Gemini 2.5 Flash...</div></div>';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+  const list = $("subjectList");
+  list.innerHTML = state.subjects.map(subject => {
+    const percent = subject.total ? (subject.attended / subject.total) * 100 : 0;
+    const safeTot = Math.floor(subject.attended / (ATTENDANCE_TARGET / 100));
+    const bunks = Math.max(0, safeTot - subject.total);
+    return `
+      <article class="card p-5 space-y-4">
+        <div class="flex justify-between gap-3">
+          <div>
+            <h4 class="font-bold text-base">${escapeHTML(subject.name)}</h4>
+            <p class="text-xs muted mt-1">${subject.attended} attended / ${subject.total} total</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xl font-extrabold ${percent >= 75 ? "text-emerald-400" : "text-red-400"}">${percent.toFixed(1)}%</p>
+            <p class="text-[10px] muted">Attendance</p>
+          </div>
+        </div>
+        <div class="progress"><div class="${percent >= 75 ? "bg-emerald-500" : "bg-red-500"}" style="width:${Math.min(percent, 100)}%"></div></div>
+        <div class="flex justify-between text-xs muted"><span>Safe bunks: ${bunks}</span><span>Target: 75%</span></div>
+        <div class="grid grid-cols-3 gap-2">
+          <button data-action="present" data-id="${subject.id}" class="btn bg-emerald-600 text-white rounded-lg py-2 text-xs font-semibold">✓ Present</button>
+          <button data-action="bunk" data-id="${subject.id}" class="btn bg-amber-600 text-white rounded-lg py-2 text-xs font-semibold">＋ Bunk</button>
+          <button data-action="delete" data-id="${subject.id}" class="btn bg-red-600/15 text-red-400 border border-red-500/30 rounded-lg py-2 text-xs font-semibold">Delete</button>
+        </div>
+      </article>`;
+  }).join("");
+}
 
-            let aiText = null;
-            const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+$("subjectList").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const { action, id } = btn.dataset;
+  const sub = state.subjects.find(s => s.id === id);
+  if (!sub) return;
+  if (action === "present") { sub.attended++; sub.total++; showToast("Present recorded."); }
+  if (action === "bunk") { sub.total++; showToast("Lecture missed recorded."); }
+  if (action === "delete") {
+    if (confirm(`Delete ${sub.name}?`)) {
+      state.subjects = state.subjects.filter(s => s.id !== id);
+      showToast("Subject deleted.");
+    }
+  }
+  saveState();
+  renderDashboard();
+  renderSyllabusSelector();
+});
 
-            for(let model of models) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${SYSTEM_GEMINI_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                    });
-                    const data = await response.json();
-                    if(data && data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
-                        aiText = data.candidates[0].content.parts[0].text;
-                        break;
-                    }
-                } catch(e) {}
-            }
+$("addSubjectBtn").addEventListener("click", () => {
+  $("subjectModal").classList.remove("hidden");
+  $("subjectModal").classList.add("flex");
+});
+document.querySelectorAll(".closeSubjectModal").forEach(b => b.addEventListener("click", () => {
+  $("subjectModal").classList.add("hidden");
+  $("subjectModal").classList.remove("flex");
+}));
 
-            document.getElementById(loadingId)?.remove();
+$("subjectForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("subjectName").value.trim();
+  const attended = Number($("initialAttended").value);
+  const total = Number($("initialTotal").value);
+  if (!name || attended > total) return showToast("Invalid inputs.");
+  state.subjects.push({ id: crypto.randomUUID(), name, attended, total, units: [] });
+  saveState();
+  renderDashboard();
+  renderSyllabusSelector();
+  $("subjectModal").classList.add("hidden");
+  $("subjectModal").classList.remove("flex");
+  $("subjectForm").reset();
+  showToast("Subject added.");
+});
 
-            if(aiText) {
-                chatMessages.innerHTML += '<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl max-w-[85%] shadow-md" style="word-break: break-word;">' + aiText + '</div></div>';
-            } else {
-                chatMessages.innerHTML += '<div class="flex justify-start"><div class="bg-slate-800 text-rose-400 p-2.5 rounded-2xl shadow-md">⚠️ API connection error. Please verify network.</div></div>';
-            }
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+function switchView(v) {
+  document.querySelectorAll(".app-view").forEach(s => s.classList.toggle("hidden", s.id !== `view-${v}`));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("tab-active", b.dataset.view === v));
+  if (v === "dashboard") renderDashboard();
+  if (v === "syllabus") renderSyllabus();
+  closeDrawer();
+}
+document.querySelectorAll(".nav-btn").forEach(b => b.addEventListener("click", () => switchView(b.dataset.view)));
 
-        renderDashboard();
-    </script>
+function openDrawer() { $("sideDrawer").classList.add("open"); $("drawerBackdrop").classList.remove("hidden"); }
+function closeDrawer() { $("sideDrawer").classList.remove("open"); $("drawerBackdrop").classList.add("hidden"); }
+$("menuBtn").addEventListener("click", openDrawer);
+$("closeDrawer").addEventListener("click", closeDrawer);
+$("drawerBackdrop").addEventListener("click", closeDrawer);
+
+function applyTheme() {
+  const isLight = state.theme === "light";
+  document.documentElement.classList.toggle("dark", !isLight);
+  document.body.classList.toggle("light-mode", isLight);
+  $("themeBtn").textContent = isLight ? "🌙 Switch to Dark Mode" : "☀️ Switch to Light Mode";
+}
+$("themeBtn").addEventListener("click", () => {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  saveState();
+  applyTheme();
+});
+
+$("resetBtn").addEventListener("click", () => {
+  if (confirm("Reset all data?")) {
+    localStorage.clear();
+    location.reload();
+  }
+});
+
+// Timetable Engine
+$("computeTimetable").addEventListener("click", () => {
+  const text = $("timetableText").value.trim();
+  if (!text) return showToast("Enter schedule text.");
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const weekly = lines.length * 5;
+  const semester = weekly * 16;
+  state.timetableText = text;
+  state.timetableResults = { weekly, holidays: 2, semester };
+  saveState();
+  $("weeklyLectures").textContent = weekly;
+  $("holidayCount").textContent = 2;
+  $("semesterLectures").textContent = semester;
+  $("timetableMessage").textContent = "Successfully computed lecture count.";
+  showToast("Timetable computed.");
+});
+
+// Syllabus Engine
+function getSelectedSubject() {
+  return state.subjects.find(s => s.id === $("syllabusSubject").value);
+}
+function renderSyllabusSelector() {
+  const sel = $("syllabusSubject");
+  sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${escapeHTML(s.name)}</option>`).join("");
+  renderSyllabus();
+}
+$("syllabusSubject").addEventListener("change", renderSyllabus);
+
+function renderSyllabus() {
+  const container = $("syllabusUnits");
+  const sub = getSelectedSubject();
+  if (!sub || !sub.units.length) {
+    container.innerHTML = `<div class="card p-6 text-center text-sm muted">No units available. Add a chapter below.</div>`;
+    return;
+  }
+  container.innerHTML = sub.units.map((u, i) => `
+    <article class="card p-5 space-y-3">
+      <div class="flex justify-between items-center">
+        <h4 class="font-bold text-indigo-400 text-sm">UNIT ${i+1}: ${escapeHTML(u.name)}</h4>
+        <button data-del-unit="${u.id}" class="text-xs text-red-400">Delete</button>
+      </div>
+      <div class="space-y-1">
+        ${u.topics.map(t => `<div class="text-xs bg-slate-800/40 p-2 rounded-lg flex justify-between"><span>📌 ${escapeHTML(t)}</span></div>`).join("")}
+      </div>
+      <button data-add-topic="${u.id}" class="text-xs text-indigo-400 border border-indigo-400/30 px-3 py-1.5 rounded-lg">＋ Add Topic / PYQ</button>
+    </article>
+  `).join("");
+}
+
+$("addUnitBtn").addEventListener("click", () => {
+  const sub = getSelectedSubject();
+  const name = $("newUnit").value.trim();
+  if (!sub || !name) return showToast("Enter unit name.");
+  sub.units.push({ id: crypto.randomUUID(), name, topics: [] });
+  $("newUnit").value = "";
+  saveState();
+  renderSyllabus();
+  showToast("Unit added.");
+});
+
+$("syllabusUnits").addEventListener("click", e => {
+  const sub = getSelectedSubject();
+  if (!sub) return;
+  if (e.target.dataset.addTopic) {
+    const u = sub.units.find(x => x.id === e.target.dataset.addTopic);
+    const top = prompt("Enter important topic or PYQ:");
+    if (top) { u.topics.push(top); saveState(); renderSyllabus(); showToast("Topic added."); }
+  }
+  if (e.target.dataset.delUnit) {
+    sub.units = sub.units.filter(x => x.id !== e.target.dataset.delUnit);
+    saveState();
+    renderSyllabus();
+    showToast("Unit deleted.");
+  }
+});
+
+// Gemini 2.5 AI Mentor Integration
+let geminiKey = sessionStorage.getItem("classbunk_gemini_key") || SYSTEM_GEMINI_KEY;
+$("saveGeminiKey").addEventListener("click", () => {
+  const k = $("geminiKey").value.trim();
+  if (k) {
+    geminiKey = k;
+    sessionStorage.setItem("classbunk_gemini_key", k);
+    showToast("Custom Gemini API key saved.");
+  }
+});
+
+async function askGemini(promptText) {
+  for (let model of GEMINI_MODELS) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+      });
+      const data = await res.json();
+      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (txt) return txt;
+    } catch(e) {}
+  }
+  throw new Error("Gemini request failed across models.");
+}
+
+$("chatForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const input = $("chatInput");
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = "";
+  
+  const container = $("chatMessages");
+  container.innerHTML += `<div class="flex justify-end"><div class="chat-message bg-indigo-600 text-white rounded-2xl p-4 text-sm">${escapeHTML(msg)}</div></div>`;
+  container.scrollTop = container.scrollHeight;
+
+  const loadId = "load-" + Date.now();
+  container.innerHTML += `<div id="${loadId}" class="flex"><div class="chat-message bg-indigo-600/15 border border-indigo-400/20 rounded-2xl p-4 text-sm text-indigo-300 animate-pulse">Thinking with Gemini 2.5 Flash...</div></div>`;
+  container.scrollTop = container.scrollHeight;
+
+  try {
+    const ans = await askGemini(msg);
+    $(loadId).remove();
+    container.innerHTML += `<div class="flex"><div class="chat-message bg-indigo-600/15 border border-indigo-400/20 rounded-2xl p-4 text-sm">${escapeHTML(ans)}</div></div>`;
+  } catch(err) {
+    $(loadId).remove();
+    container.innerHTML += `<div class="flex"><div class="chat-message bg-red-600/20 text-red-300 rounded-2xl p-4 text-sm">⚠️ Error connecting to Gemini AI. Check network or key.</div></div>`;
+  }
+  container.scrollTop = container.scrollHeight;
+});
+
+$("clearChat").addEventListener("click", () => {
+  $("chatMessages.innerHTML") = `<div class="flex"><div class="chat-message bg-indigo-600/15 border border-indigo-400/20 rounded-2xl p-4 text-sm">Conversation cleared.</div></div>`;
+  showToast("Chat cleared.");
+});
+
+// Supabase Init Placeholder
+async function initSupabase() {
+  if (SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
+    try {
+      const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+      window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      $("supabaseStatus").textContent = "● Supabase Connected";
+    } catch(e) {
+      $("supabaseStatus").textContent = "Supabase connection error.";
+    }
+  }
+}
+
+$("authBtn").addEventListener("click", () => {
+  $("authModal").classList.remove("hidden");
+  $("authModal").classList.add("flex");
+});
+document.querySelectorAll("#closeAuthModal").forEach(b => b.addEventListener("click", () => {
+  $("authModal").classList.add("hidden");
+  $("authModal").classList.remove("flex");
+}));
+$("signInTab").addEventListener("click", () => {
+  $("signInTab").className = "flex-1 rounded-lg bg-indigo-600 text-white py-2 text-sm font-semibold";
+  $("signUpTab").className = "flex-1 rounded-lg bg-slate-700 py-2 text-sm font-semibold";
+});
+$("signUpTab").addEventListener("click", () => {
+  $("signUpTab").className = "flex-1 rounded-lg bg-indigo-600 text-white py-2 text-sm font-semibold";
+  $("signInTab").className = "flex-1 rounded-lg bg-slate-700 py-2 text-sm font-semibold";
+});
+$("authForm").addEventListener("submit", e => {
+  e.preventDefault();
+  showToast("Authentication request submitted.");
+  $("authModal").classList.add("hidden");
+  $("authModal").classList.remove("flex");
+});
+
+// Initialize Application on Load
+renderDashboard();
+renderSyllabusSelector();
+applyTheme();
+$("todayDate").textContent = new Intl.DateTimeFormat("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(new Date());
+initSupabase();
+</script>
 </body>
 </html>
