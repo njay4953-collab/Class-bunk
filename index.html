@@ -1,797 +1,746 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0f172a" />
-<title>ClassBunk v4.0 Enterprise Pro – BKBIET Pilani</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  html, body { font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
-  .glass { background: rgba(255,255,255,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-  .dark .glass { background: rgba(15,23,42,.72); }
-  .view { display: none; }
-  .view.active { display: block; animation: fadeIn .25s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  @keyframes bounceDot { 0%,80%,100% { transform: scale(.6); opacity: .5; } 40% { transform: scale(1); opacity: 1; } }
-  .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background: currentColor; margin-right:3px; animation: bounceDot 1.2s infinite ease-in-out; }
-  .dot:nth-child(2){ animation-delay:.15s } .dot:nth-child(3){ animation-delay:.3s }
-  #drawer { transform: translateX(-100%); transition: transform .28s ease; }
-  #drawer.open { transform: translateX(0); }
-  #drawerBackdrop { opacity: 0; pointer-events: none; transition: opacity .28s ease; }
-  #drawerBackdrop.open { opacity: 1; pointer-events: auto; }
-  .nav-btn.active { color: #6366f1; }
-  .nav-btn.active .nav-ico { background: rgba(99,102,241,.14); }
-  .prose-chat p { margin: 0 0 .5rem; } .prose-chat p:last-child { margin-bottom: 0; }
-  .prose-chat ul { list-style: disc; padding-left: 1.2rem; margin: .25rem 0 .5rem; }
-  .prose-chat code { background: rgba(100,116,139,.2); padding: 1px 5px; border-radius: 5px; font-size: .85em; }
-  .prose-chat pre { background: rgba(2,6,23,.85); color:#e2e8f0; padding: .6rem .75rem; border-radius: .6rem; overflow-x:auto; font-size:.8rem; margin:.4rem 0; }
-  .prose-chat pre code { background: transparent; padding: 0; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: rgba(100,116,139,.4); border-radius: 6px; }
-  button:disabled { opacity: .55; cursor: not-allowed; }
-</style>
-</head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased">
-
-<!-- ============ HEADER ============ -->
-<header class="glass sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800">
-  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-    <button data-action="open-drawer" aria-label="Open menu" class="w-10 h-10 rounded-xl bg-slate-200/70 dark:bg-slate-800 flex items-center justify-center text-xl active:scale-95 transition">≡</button>
-    <div class="flex-1 min-w-0">
-      <h1 class="text-base font-extrabold leading-tight truncate">ClassBunk v4.0 Pro</h1>
-      <span class="inline-block text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-300">BKBIET Pilani Academic Engine</span>
-    </div>
-    <button id="authBtn" data-action="open-auth" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95 transition whitespace-nowrap">🔑 Supabase</button>
+<section>
+  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+    AI Mentor Connection
+  </h3>
+  <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+    <p id="keyStatus" class="text-xs font-semibold text-slate-500">
+      Checking AI server...
+    </p>
+    <p class="text-xs text-slate-500 mt-2">
+      AI requests are handled by a secure backend.
+      Your API key is not stored in this website.
+    </p>
   </div>
-</header>
+  <button data-action="test-ai"
+    class="w-full mt-2 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold">
+    Test AI Connection
+  </button>
+</section>const Config = {
+  LS_KEY: 'classbunk_v5_state',
+  LS_THEME: 'classbunk_v5_theme',
+  LS_CHAT: 'classbunk_v5_chat',
 
-<!-- ============ DRAWER ============ -->
-<div id="drawerBackdrop" data-action="close-drawer" class="fixed inset-0 z-40 bg-black/50"></div>
-<aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-[85%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto" aria-hidden="true">
-  <div class="p-5 space-y-6">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-extrabold">Settings &amp; Tools</h2>
-      <button data-action="close-drawer" aria-label="Close menu" class="w-9 h-9 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-lg">✕</button>
-    </div>
-
-    <section>
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Theme</h3>
-      <button data-action="toggle-theme" class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800">
-        <span class="text-sm font-semibold" id="themeLabel">Dark mode</span>
-        <span id="themeIcon" class="text-xl">🌙</span>
-      </button>
-    </section>
-
-    <section>
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Gemini API Key</h3>
-      <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Preloaded with default key"
-        class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none text-sm" />
-      <div class="flex gap-2 mt-2">
-        <button data-action="save-key" class="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold">Save Custom Key</button>
-        <button data-action="clear-key" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Reset</button>
-      </div>
-      <p id="keyStatus" class="text-xs mt-2 font-semibold"></p>
-    </section>
-
-    <section>
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Data Portability (Backup &amp; Restore)</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <button data-action="export-json" class="py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-semibold">⬇️ Export JSON</button>
-        <button data-action="export-csv" class="py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-semibold">⬇️ Export CSV</button>
-      </div>
-      <label class="block mt-2">
-        <span class="text-xs text-slate-500 font-semibold">Restore Backup JSON</span>
-        <input type="file" id="importFile" accept=".json" class="mt-1 block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/15 file:text-indigo-600 hover:file:bg-indigo-500/30 cursor-pointer"/>
-      </label>
-      <button data-action="reset-all" class="mt-3 w-full py-2.5 rounded-xl bg-rose-600 text-white text-xs font-semibold">🗑️ Reset All App Data</button>
-    </section>
-  </div>
-</aside>
-
-<!-- ============ MAIN CONTAINER ============ -->
-<main class="max-w-3xl mx-auto px-4 py-5">
-
-  <!-- DASHBOARD VIEW -->
-  <section id="view-dashboard" class="view active">
-    <div class="grid grid-cols-3 gap-3">
-      <div class="col-span-3 sm:col-span-1 rounded-2xl p-4 bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg">
-        <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Overall Attendance</p>
-        <p id="overallPct" class="text-4xl font-extrabold mt-1">0%</p>
-        <p id="overallCount" class="text-xs opacity-80 mt-1">0 / 0 classes</p>
-      </div>
-      <div class="col-span-2 sm:col-span-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Health Status</p>
-        <p id="healthStatus" class="text-lg font-extrabold mt-2">—</p>
-        <p id="healthHint" class="text-xs text-slate-500 mt-1">Cutoff: 75%</p>
-      </div>
-      <div class="col-span-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Safe Bunks</p>
-        <p id="bunkCount" class="text-3xl font-extrabold mt-1">0</p>
-      </div>
-    </div>
-
-    <!-- TARGET ATTENDANCE SIMULATOR WIDGET -->
-    <div class="mt-4 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">🎯 Attendance Target Simulator</h3>
-        <span class="text-xs text-slate-500">What-If Analysis</span>
-      </div>
-      <p class="text-xs text-slate-500 mt-1">Simulate attending next <input id="simAttendInput" type="number" min="0" value="5" class="w-12 text-center font-bold px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800" /> lectures straight:</p>
-      <p id="simResultText" class="text-sm font-extrabold mt-2 text-slate-800 dark:text-slate-200">—</p>
-    </div>
-
-    <!-- EXAM GOAL & CGPA PREDICTOR WIDGET -->
-    <div class="mt-4 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">📊 BKBIET Exam Goal &amp; CGPA Predictor</h3>
-        <button data-action="open-cgpa-modal" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-300">Calculate Target</button>
-      </div>
-      <p id="cgpaSummaryText" class="text-xs text-slate-500 mt-2">Targeting Sessional standing &amp; End-Sem weightage. Tap calculate to set target grades.</p>
-    </div>
-
-    <div class="flex items-center justify-between mt-6 mb-3">
-      <h2 class="text-lg font-extrabold">Subjects</h2>
-      <button data-action="add-subject" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Subject</button>
-    </div>
-    <div id="subjectList" class="space-y-3"></div>
-
-    <!-- RECENT AUDIT TIMELINE -->
-    <div class="mt-6 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">📜 Recent Attendance Log Audit</h3>
-      <div id="auditLogList" class="space-y-1.5 text-xs text-slate-500"></div>
-    </div>
-  </section>
-
-  <!-- TIMETABLE VIEW -->
-  <section id="view-timetable" class="view">
-    <h2 class="text-lg font-extrabold">Timetable &amp; Holiday Engine</h2>
-    <p class="text-sm text-slate-500 mt-1">One line per day. Use <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Day: Subject, Subject x2</code>. Mark off days with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Sat: Holiday</code>.</p>
-    <textarea id="ttInput" rows="9" spellcheck="false"
-      class="w-full mt-3 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-indigo-500 outline-none text-sm font-mono"
-      placeholder="Mon: Maths, Physics, DSA&#10;Tue: DSA x2, Chemistry Lab&#10;Wed: Maths, Physics&#10;Thu: Electronics, DSA&#10;Fri: Maths, Chemistry&#10;Sat: Holiday&#10;Sun: Holiday&#10;Holiday: Diwali Mon x1"></textarea>
-    <div class="flex items-center gap-3 mt-3">
-      <label class="text-sm font-semibold">Weeks</label>
-      <input id="ttWeeks" type="number" min="1" max="30" value="16" class="w-20 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none text-sm" />
-      <button data-action="compute-tt" class="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">⚙️ Compute Schedule</button>
-    </div>
-    <div id="ttResult" class="mt-5"></div>
-  </section>
-    <!-- SYLLABUS VIEW -->
-  <section id="view-syllabus" class="view">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-extrabold">Syllabus &amp; PYQ Hub</h2>
-      <button data-action="open-pomodoro" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95">🍅 Study Timer</button>
-    </div>
-    <select id="sylSubject" class="w-full mt-3 px-3 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 outline-none text-sm font-semibold"></select>
-    <div id="sylProgressWrap" class="mt-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-      <div class="flex justify-between text-xs font-bold mb-1">
-        <span>Syllabus Completion</span>
-        <span id="sylProgPct">0%</span>
-      </div>
-      <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-        <div id="sylProgBar" class="h-full bg-indigo-600 transition-all duration-500" style="width:0%"></div>
-      </div>
-    </div>
-    <div class="flex justify-end mt-3">
-      <button data-action="add-unit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Chapter / Unit</button>
-    </div>
-    <div id="sylList" class="mt-3 space-y-3"></div>
-  </section>
-
-  <!-- MENTOR VIEW -->
-  <section id="view-mentor" class="view">
-    <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col" style="height:65vh">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-sm font-extrabold">🤖 AI Mentor</h2>
-          <p class="text-[11px] text-slate-500">Active model: <span id="activeModel" class="font-semibold text-indigo-600 dark:text-indigo-300">gemini-1.5-flash</span></p>
-        </div>
-        <button data-action="clear-chat" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800">Clear Chat</button>
-      </div>
-      <div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth"></div>
-      <form id="chatForm" class="p-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
-        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about attendance, exam prep, or study strategies…"
-          class="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none text-sm focus:ring-2 focus:ring-indigo-500" />
-        <button id="chatSend" type="submit" class="px-5 rounded-xl bg-indigo-600 text-white font-semibold text-sm active:scale-95 transition">Send</button>
-      </form>
-    </div>
-    <div class="flex flex-wrap gap-2 mt-3" id="quickPrompts">
-      <button data-quick="Based on my attendance, which subjects should I prioritise this week?" class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">📊 Prioritise subjects</button>
-      <button data-quick="Create a 7-day study plan from my syllabus topics and PYQs." class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">🗓️ 7-day plan</button>
-      <button data-quick="How many classes can I safely bunk and still stay above 75%?" class="text-xs px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold">😎 Safe bunks</button>
-    </div>
-  </section>
-</main>
-
-<!-- ============ BOTTOM NAV ============ -->
-<nav class="glass fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 dark:border-slate-800" style="padding-bottom:env(safe-area-inset-bottom)">
-  <div class="max-w-3xl mx-auto grid grid-cols-4">
-    <button class="nav-btn active flex flex-col items-center py-2 text-slate-500" data-view="dashboard"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">📊</span><span class="text-[11px] font-semibold mt-0.5">Dashboard</span></button>
-    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="timetable"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">🗓️</span><span class="text-[11px] font-semibold mt-0.5">Timetable</span></button>
-    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="syllabus"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">📚</span><span class="text-[11px] font-semibold mt-0.5">Syllabus</span></button>
-    <button class="nav-btn flex flex-col items-center py-2 text-slate-500" data-view="mentor"><span class="nav-ico w-12 h-7 rounded-full flex items-center justify-center text-lg">🤖</span><span class="text-[11px] font-semibold mt-0.5">Mentor</span></button>
-  </div>
-</nav>
-
-<!-- ============ MODALS & TOASTS ============ -->
-<div id="modalRoot" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"></div>
-<div id="toastRoot" class="fixed left-1/2 -translate-x-1/2 z-[70] flex flex-col gap-2 items-center pointer-events-none" style="bottom:calc(88px + env(safe-area-inset-bottom))"></div>
-<script>
-'use strict';
-const Config = {
-  LS_KEY: 'classbunk_v4_state',
-  LS_THEME: 'classbunk_v4_theme',
-  LS_CHAT: 'classbunk_v4_chat',
-  LS_SB: 'classbunk_v4_supabase',
-  SS_KEY: 'classbunk_v4_gemini_key',
-  DEFAULT_GEMINI_KEY: 'AQ.Ab8RN6Kx933NQXaJVUUTVv2Eu9QPc4UpNEIhXo-SNpyO8RNfdg',
   CUTOFF: 75,
+
+  // Replace this with your deployed backend URL.
+  AI_ENDPOINT: 'https://YOUR-WORKER.workers.dev/api/mentor',
+
   MODELS: [
-    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-    { id: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8B' },
-    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' }
-  ],
-  ENDPOINT: (m, k) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(k)}`
-};
+    'gemini-3.8-flash',
+    'gemini-3.7-flash',
+    'gemini-3.6-flash'
+  ]
+};async refreshSettings() {
+  const el = $('#keyStatus');
 
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const pctOf = (a, t) => (t > 0 ? (a / t) * 100 : 0);
-const fmtPct = (n) => (Number.isInteger(n) ? n : n.toFixed(1)) + '%';
-const safeParse = (s, fb) => { try { const v = JSON.parse(s); return v ?? fb; } catch { return fb; } };
+  if (!el) return;
 
-function bunkMath(a, t) {
-  const r = Config.CUTOFF / 100;
-  if (t === 0) return { bunks: 0, need: 0 };
-  if (pctOf(a, t) >= Config.CUTOFF) return { bunks: Math.max(0, Math.floor(a / r - t + 1e-9)), need: 0 };
-  return { bunks: 0, need: Math.max(1, Math.ceil((r * t - a) / (1 - r) - 1e-9)) };
-}
-function tone(p, t) {
-  if (t === 0) return { bar: 'bg-slate-400', badge: 'bg-slate-500/15 text-slate-500' };
-  if (p >= Config.CUTOFF + 5) return { bar: 'bg-emerald-500', badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300' };
-  if (p >= Config.CUTOFF) return { bar: 'bg-amber-500', badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-300' };
-  return { bar: 'bg-rose-500', badge: 'bg-rose-500/15 text-rose-600 dark:text-rose-300' };
-}
+  el.textContent = 'Checking AI server...';
 
-const Store = {
-  state: { subjects: [], syllabus: {}, timetable: { text: '', weeks: 16, projection: {}, updatedAt: null }, selectedSyllabus: '', auditLogs: [], cgpaTarget: { targetCgpa: 8.5, currentSessionalAvg: 85 } },
-  load() {
-    const saved = safeParse(localStorage.getItem(Config.LS_KEY), null);
-    if (saved && typeof saved === 'object') {
-      this.state = {
-        subjects: Array.isArray(saved.subjects) ? saved.subjects : [],
-        syllabus: saved.syllabus && typeof saved.syllabus === 'object' ? saved.syllabus : {},
-        timetable: Object.assign({ text: '', weeks: 16, projection: {}, updatedAt: null }, saved.timetable || {}),
-        selectedSyllabus: saved.selectedSyllabus || '',
-        auditLogs: Array.isArray(saved.auditLogs) ? saved.auditLogs : [],
-        cgpaTarget: Object.assign({ targetCgpa: 8.5, currentSessionalAvg: 85 }, saved.cgpaTarget || {})
-      };
-    } else {
-      this.state.subjects = [
-        { id: uid(), name: 'Engineering Mathematics I', attended: 22, total: 28 },
-        { id: uid(), name: 'Engineering Physics', attended: 18, total: 24 },
-        { id: uid(), name: 'Basic Electronics', attended: 20, total: 25 }
-      ];
-      this.state.auditLogs = [{ time: new Date().toLocaleTimeString(), text: 'Initialized default BKBIET Pilani profile.' }];
-    }
-  },
-  save() {
-    try { localStorage.setItem(Config.LS_KEY, JSON.stringify(this.state)); }
-    catch (e) { UI.toast('Storage error', 'error'); }
-  },
-  logAction(text) {
-    this.state.auditLogs.unshift({ time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text });
-    if (this.state.auditLogs.length > 15) this.state.auditLogs.pop();
+  try {
+    const response = await fetch(
+      Config.AI_ENDPOINT.replace('/api/mentor', '/health'),
+      { method: 'GET' }
+    );
+
+    if (!response.ok) throw new Error('Server unavailable');
+
+    const data = await response.json();
+
+    el.textContent = data.ok
+      ? '● AI server connected'
+      : '● AI server unavailable';
+
+    el.className = data.ok
+      ? 'text-xs font-semibold text-emerald-500'
+      : 'text-xs font-semibold text-rose-500';
+
+  } catch (error) {
+    el.textContent = '● Backend not connected';
+    el.className = 'text-xs font-semibold text-rose-500';
   }
-};
+}const Mentor = {
+  messages: [],
+  busy: false,
+  controller: null,
 
-const UI = {
-  toast(msg, kind = 'info') {
-    const colors = { info: 'bg-slate-800 text-white', success: 'bg-emerald-600 text-white', error: 'bg-rose-600 text-white' };
-    const el = document.createElement('div');
-    el.className = `px-4 py-2 rounded-xl shadow-lg text-sm font-semibold ${colors[kind] || colors.info} transition-all duration-300`;
-    el.textContent = msg;
-    $('#toastRoot').appendChild(el);
-    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; }, 2300);
-    setTimeout(() => el.remove(), 2700);
-  },
-  openDrawer() { $('#drawer').classList.add('open'); $('#drawerBackdrop').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); this.refreshSettings(); },
-  closeDrawer() { $('#drawer').classList.remove('open'); $('#drawerBackdrop').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); },
-  setTheme(mode) {
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-    localStorage.setItem(Config.LS_THEME, mode);
-    $('#themeLabel').textContent = mode === 'dark' ? 'Dark mode' : 'Light mode';
-    $('#themeIcon').textContent = mode === 'dark' ? '🌙' : '☀️';
-    const meta = $('meta[name="theme-color"]'); if (meta) meta.content = mode === 'dark' ? '#0f172a' : '#f8fafc';
-  },
-  toggleTheme() { this.setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); },
-  refreshSettings() {
-    const custom = sessionStorage.getItem(Config.SS_KEY);
-    const el = $('#keyStatus');
-    el.textContent = custom ? '● Custom API key active' : '● Default preloaded API key active';
-    el.className = 'text-xs mt-2 font-semibold text-emerald-500';
-  },
-  showView(name) {
-    $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-    $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
-    if (name === 'syllabus') Syllabus.render();
-    if (name === 'mentor') Mentor.scrollBottom();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  },
-  form({ title, fields, submitText = 'Save', validate }) {
-    return new Promise(resolve => {
-      const root = $('#modalRoot');
-      const inputs = fields.map(f => {
-        const base = 'w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none text-sm';
-        let control;
-        if (f.type === 'select') {
-          control = `<select name="${esc(f.name)}" class="${base}">${f.options.map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('')}</select>`;
-        } else if (f.type === 'textarea') {
-          control = `<textarea name="${esc(f.name)}" rows="3" placeholder="${esc(f.placeholder || '')}" class="${base}"></textarea>`;
-        } else {
-          control = `<input name="${esc(f.name)}" type="${esc(f.type || 'text')}" ${f.min != null ? `min="${f.min}"` : ''} placeholder="${esc(f.placeholder || '')}" value="${esc(f.value ?? '')}" autocomplete="off" class="${base}" />`;
-        }
-        return `<label class="block"><span class="text-xs font-semibold text-slate-500">${esc(f.label)}</span><div class="mt-1">${control}</div></label>`;
-      }).join('');
-      root.innerHTML = `
-        <form class="w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto" novalidate>
-          <h3 class="text-lg font-extrabold">${esc(title)}</h3>
-          ${inputs}
-          <p data-err class="text-sm text-rose-500 font-semibold hidden"></p>
-          <div class="flex gap-2 pt-1">
-            <button type="button" data-cancel class="flex-1 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 font-semibold text-sm">Cancel</button>
-            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm">${esc(submitText)}</button>
-          </div>
-        </form>`;
-      root.classList.remove('hidden'); root.classList.add('flex');
-      const formEl = $('form', root);
-      const close = (val) => { root.classList.add('hidden'); root.classList.remove('flex'); root.innerHTML = ''; resolve(val); };
-      const first = $('input,textarea,select', formEl); if (first) setTimeout(() => first.focus(), 50);
-      $('[data-cancel]', formEl).addEventListener('click', () => close(null));
-      root.addEventListener('mousedown', (e) => { if (e.target === root) close(null); }, { once: true });
-      formEl.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const vals = {};
-        fields.forEach(f => { vals[f.name] = formEl.elements[f.name].value.trim(); });
-        const err = validate ? validate(vals) : '';
-        if (err) { const p = $('[data-err]', formEl); p.textContent = err; p.classList.remove('hidden'); return; }
-        close(vals);
-      });
-    });
-  },
-  closeModal() { const r = $('#modalRoot'); r.classList.add('hidden'); r.classList.remove('flex'); r.innerHTML = ''; }
-};
-
-const Dashboard = {
-  render() {
-    const subs = Store.state.subjects;
-    const A = subs.reduce((s, x) => s + x.attended, 0);
-    const T = subs.reduce((s, x) => s + x.total, 0);
-    const p = pctOf(A, T);
-    const { bunks, need } = bunkMath(A, T);
-
-    $('#overallPct').textContent = fmtPct(p);
-    $('#overallCount').textContent = `${A} / ${T} classes`;
-    const hs = $('#healthStatus'), hh = $('#healthHint');
-    if (T === 0) { hs.textContent = 'No data yet'; hs.className = 'text-lg font-extrabold mt-2 text-slate-500'; hh.textContent = 'Add a subject to begin'; }
-    else if (p >= Config.CUTOFF) { hs.textContent = '✅ Safe Buffer'; hs.className = 'text-lg font-extrabold mt-2 text-emerald-500'; hh.textContent = `Above ${Config.CUTOFF}% cutoff`; }
-    else { hs.textContent = '⚠️ At Risk'; hs.className = 'text-lg font-extrabold mt-2 text-rose-500'; hh.textContent = `Attend ${need} classes in a row`; }
-    $('#bunkCount').textContent = bunks;
-
-    // Simulator calculation
-    const addSim = parseInt($('#simAttendInput').value, 10) || 0;
-    const simPct = pctOf(A + addSim, T + addSim);
-    $('#simResultText').textContent = `Attending next ${addSim} classes yields ${fmtPct(simPct)} overall (${simPct >= Config.CUTOFF ? 'Safe ✅' : 'Still At Risk ⚠️'})`;
-
-    // CGPA Predictor summary
-    const cg = Store.state.cgpaTarget;
-    $('#cgpaSummaryText').textContent = `Target CGPA: ${cg.targetCgpa} | Current Sessional Avg: ${cg.currentSessionalAvg}%. Required End-Sem score approx. ${Math.max(40, Math.round(cg.targetCgpa * 9 - cg.currentSessionalAvg * 0.4))}/100.`;
-
-    // Subject List
-    const list = $('#subjectList');
-    if (!subs.length) {
-      list.innerHTML = `<div class="text-center py-12 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700"><p class="text-4xl mb-2">🎓</p><p class="font-bold">No subjects yet</p></div>`;
-      return;
-    }
-    list.innerHTML = subs.map(s => {
-      const sp = pctOf(s.attended, s.total), t = tone(sp, s.total), bm = bunkMath(s.attended, s.total);
-      const hint = s.total === 0 ? 'No classes recorded' : sp >= Config.CUTOFF ? `Can bunk ${bm.bunks} more` : `Need ${bm.need} more`;
-      return `<article class="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm" data-id="${esc(s.id)}">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h3 class="font-bold truncate">${esc(s.name)}</h3>
-            <p class="text-xs text-slate-500 mt-0.5">${s.attended} / ${s.total} attended</p>
-          </div>
-          <span class="text-sm font-extrabold px-2.5 py-1 rounded-lg ${t.badge}">${fmtPct(sp)}</span>
-        </div>
-        <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 mt-3 overflow-hidden"><div class="h-full ${t.bar} transition-all duration-500" style="width:${Math.min(100, sp)}%"></div></div>
-        <p class="text-xs mt-2 text-slate-500">${esc(hint)}</p>
-        <div class="grid grid-cols-3 gap-2 mt-3">
-          <button data-action="present" class="py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95">✓ Present</button>
-          <button data-action="bunk" class="py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold active:scale-95">＋ Bunk</button>
-          <button data-action="delete-subject" class="py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-rose-600 text-sm font-semibold">Delete</button>
-        </div>
-      </article>`;
-    }).join('');
-
-    // Audit logs
-    $('#auditLogList').innerHTML = Store.state.auditLogs.map(l => `<div><span class="font-mono text-indigo-500">[${l.time}]</span> ${esc(l.text)}</div>`).join('');
-  },
-  async addSubject() {
-    const v = await UI.form({
-      title: 'Add Subject', submitText: 'Add',
-      fields: [
-        { name: 'name', label: 'Subject name', placeholder: 'e.g. Data Structures' },
-        { name: 'attended', label: 'Classes attended', type: 'number', min: 0, value: '0' },
-        { name: 'total', label: 'Total classes held', type: 'number', min: 0, value: '0' }
-      ],
-      validate: (x) => {
-        if (!x.name) return 'Subject name is required.';
-        if (Store.state.subjects.some(s => s.name.toLowerCase() === x.name.toLowerCase())) return 'Subject already exists.';
-        return '';
-      }
-    });
-    if (!v) return;
-    Store.state.subjects.push({ id: uid(), name: v.name, attended: Number(v.attended), total: Number(v.total) });
-    Store.logAction(`Added subject "${v.name}"`);
-    Store.save(); this.render(); Syllabus.refreshSelect(); UI.toast('Subject added', 'success');
-  },
-  handleClick(e) {
-    const btn = e.target.closest('[data-action]'); if (!btn) return;
-    const card = btn.closest('[data-id]'); if (!card) return;
-    const s = Store.state.subjects.find(x => x.id === card.dataset.id); if (!s) return;
-    const act = btn.dataset.action;
-    if (act === 'present') { s.attended++; s.total++; Store.logAction(`Marked Present in ${s.name}`); }
-    else if (act === 'bunk') { s.total++; Store.logAction(`Marked Bunk in ${s.name}`); }
-    else if (act === 'delete-subject') {
-      if (!confirm(`Delete "${s.name}"?`)) return;
-      Store.state.subjects = Store.state.subjects.filter(x => x.id !== s.id);
-      delete Store.state.syllabus[s.id];
-      Store.logAction(`Deleted subject ${s.name}`);
-      Syllabus.refreshSelect();
-    }
-    Store.save(); this.render();
-  }
-};
-</script>
-<script>
-const Timetable = {
-  DAYS: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  dayIndex(token) { return this.DAYS.findIndex(d => token.toLowerCase().startsWith(d.toLowerCase())); },
-  parse(text) {
-    const week = {}, names = {}, offDays = new Set(), holidays = [], warnings = [];
-    text.split(/\r?\n/).forEach((raw, i) => {
-      const line = raw.trim(); if (!line) return;
-      const hol = line.match(/^holidays?\s*[:\-–]\s*(.+)$/i);
-      if (hol) {
-        const body = hol[1];
-        const dm = body.match(/\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b/i);
-        const mm = body.match(/[x×]\s*(\d+)/i);
-        holidays.push({ label: body.replace(/[x×]\s*\d+/i, '').trim(), day: dm ? this.dayIndex(dm[1]) : -1, mult: mm ? Math.max(1, parseInt(mm[1], 10)) : 1 });
-        return;
-      }
-      const m = line.match(/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\s*[:\-–]\s*(.*)$/i);
-      if (!m) { warnings.push(`Line ${i + 1} not understood: "${line}"`); return; }
-      const d = this.dayIndex(m[1]); const body = m[2].trim();
-      if (!body || /^(holiday|off|no\s*class(es)?|none|-)$/i.test(body)) { offDays.add(d); return; }
-      week[d] = week[d] || {};
-      body.split(/[,;|]/).forEach(part => {
-        const p = part.trim(); if (!p) return;
-        const mult = p.match(/(?:[x×]\s*(\d+)|\((\d+)\))\s*$/i);
-        const count = mult ? parseInt(mult[1] || mult[2], 10) : 1;
-        const name = p.replace(/(?:[x×]\s*\d+|\(\d+\))\s*$/i, '').trim();
-        if (!name) return;
-        const key = name.toLowerCase(); names[key] = names[key] || name;
-        week[d][key] = (week[d][key] || 0) + count;
-      });
-    });
-    return { week, names, offDays, holidays, warnings };
-  },
-  compute() {
-    const text = $('#ttInput').value;
-    const weeks = Math.min(30, Math.max(1, parseInt($('#ttWeeks').value, 10) || 16));
-    if (!text.trim()) { UI.toast('Paste your timetable first', 'error'); return; }
-    const { week, names, offDays, holidays, warnings } = this.parse(text);
-    const weekly = {}, lost = {};
-    Object.keys(week).forEach(d => Object.entries(week[d]).forEach(([k, c]) => { weekly[k] = (weekly[k] || 0) + c; }));
-    holidays.forEach(h => {
-      if (h.day < 0 || !week[h.day]) return;
-      Object.entries(week[h.day]).forEach(([k, c]) => { lost[k] = (lost[k] || 0) + c * h.mult; });
-    });
-    const keys = Object.keys(weekly);
-    if (!keys.length) { $('#ttResult').innerHTML = this.warnHtml(warnings.length ? warnings : ['No lectures detected.']); return; }
-    const projection = {}; let weeklyTotal = 0, semTotal = 0;
-    const rows = keys.map(k => {
-      const est = Math.max(0, weekly[k] * weeks - (lost[k] || 0));
-      projection[k] = est; weeklyTotal += weekly[k]; semTotal += est;
-      return { key: k, name: names[k], weekly: weekly[k], lost: lost[k] || 0, est };
-    });
-    Store.state.timetable = { text, weeks, projection, updatedAt: Date.now() };
-    Store.logAction('Computed timetable projection');
-    Store.save(); Dashboard.render();
-    $('#ttResult').innerHTML = `<div class="p-4 rounded-2xl bg-indigo-600 text-white font-semibold text-sm">Schedule computed successfully (${semTotal} total semester lectures estimated).</div>`;
-    UI.toast('Schedule computed', 'success');
-  },
-  warnHtml(list) { return `<div class="p-4 bg-amber-500/10 text-amber-600 text-sm rounded-2xl">⚠️ ${list.join('<br>')}</div>`; },
-  restore() { $('#ttInput').value = Store.state.timetable.text || ''; $('#ttWeeks').value = Store.state.timetable.weeks || 16; }
-};
-
-const Syllabus = {
-  current() { return Store.state.selectedSyllabus; },
-  refreshSelect() {
-    const sel = $('#sylSubject'), subs = Store.state.subjects;
-    if (!subs.length) { sel.innerHTML = '<option value="">No subjects available</option>'; Store.state.selectedSyllabus = ''; }
-    else {
-      if (!subs.some(s => s.id === Store.state.selectedSyllabus)) Store.state.selectedSyllabus = subs[0].id;
-      sel.innerHTML = subs.map(s => `<option value="${esc(s.id)}" ${s.id === Store.state.selectedSyllabus ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
-    }
-    this.render();
-  },
-  render() {
-    const box = $('#sylList'), id = this.current();
-    if (!id) { box.innerHTML = '<p class="text-center text-sm text-slate-500 py-10">Add a subject first.</p>'; $('#sylProgBar').style.width = '0%'; $('#sylProgPct').textContent = '0%'; return; }
-    const units = Store.state.syllabus[id] || [];
-    let totalItems = 0, doneItems = 0;
-    units.forEach(u => u.items.forEach(it => { totalItems++; if (it.done) doneItems++; }));
-    const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
-    $('#sylProgBar').style.width = pct + '%';
-    $('#sylProgPct').textContent = pct + '%';
-
-    if (!units.length) { box.innerHTML = '<div class="text-center py-10 text-slate-500 text-sm">No units added yet. Tap “＋ Add Chapter / Unit”.</div>'; return; }
-    box.innerHTML = units.map((u, i) => `
-      <article class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4" data-unit="${esc(u.id)}">
-        <div class="flex items-center justify-between">
-          <h3 class="font-bold"><span class="text-indigo-500">Unit ${i + 1}</span> · ${esc(u.title)}</h3>
-          <button data-action="del-unit" class="text-xs text-rose-500 font-semibold px-2 py-1">Remove</button>
-        </div>
-        <ul class="mt-3 space-y-2">
-          ${u.items.length ? u.items.map(it => `
-            <li class="flex items-center gap-2 text-sm" data-item="${esc(it.id)}">
-              <input type="checkbox" data-action="toggle-item" ${it.done ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600">
-              <span class="flex-1 ${it.done ? 'line-through opacity-60' : ''}">${it.type === 'pyq' ? '<span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 mr-1">PYQ</span>' : ''}${esc(it.text)}</span>
-              <button data-action="del-item" class="text-slate-400 hover:text-rose-500">✕</button>
-            </li>`).join('') : '<li class="text-xs text-slate-500">No topics added yet.</li>'}
-        </ul>
-        <button data-action="add-item" class="mt-3 w-full py-2 rounded-xl bg-indigo-500/10 text-indigo-600 text-xs font-semibold">＋ Add Topic / PYQ</button>
-      </article>`).join('');
-  },
-  async addUnit() {
-    const id = this.current(); if (!id) return;
-    const v = await UI.form({ title: 'Add Unit', fields: [{ name: 'title', label: 'Unit Title', placeholder: 'e.g. Digital Signal Processing' }], validate: x => x.title ? '' : 'Required' });
-    if (!v) return;
-    (Store.state.syllabus[id] = Store.state.syllabus[id] || []).push({ id: uid(), title: v.title, items: [] });
-    Store.save(); this.render();
-  },
-  async addItem(unitId) {
-    const id = this.current(); const unit = (Store.state.syllabus[id] || []).find(u => u.id === unitId); if (!unit) return;
-    const v = await UI.form({
-      title: 'Add Topic / PYQ', fields: [
-        { name: 'type', label: 'Type', type: 'select', options: [{ value: 'topic', label: 'Topic' }, { value: 'pyq', label: 'Previous Year Question' }] },
-        { name: 'text', label: 'Description', type: 'textarea', placeholder: 'Topic or PYQ text' }],
-      validate: x => x.text ? '' : 'Required'
-    });
-    if (!v) return;
-    unit.items.push({ id: uid(), type: v.type, text: v.text, done: false });
-    Store.save(); this.render();
-  },
-  handleClick(e) {
-    const btn = e.target.closest('[data-action]'); if (!btn) return;
-    const card = btn.closest('[data-unit]'); const id = this.current();
-    if (!card || !id) return;
-    const units = Store.state.syllabus[id] || [];
-    const unit = units.find(u => u.id === card.dataset.unit); if (!unit) return;
-    const act = btn.dataset.action;
-    if (act === 'add-item') this.addItem(unit.id);
-    else if (act === 'del-unit') { Store.state.syllabus[id] = units.filter(u => u.id !== unit.id); Store.save(); this.render(); }
-    else if (act === 'del-item') { const li = btn.closest('[data-item]'); unit.items = unit.items.filter(i => i.id !== li.dataset.item); Store.save(); this.render(); }
-    else if (act === 'toggle-item') { const li = btn.closest('[data-item]'); const item = unit.items.find(i => i.id === li.dataset.item); if (item) { item.done = btn.checked; Store.save(); this.render(); } }
-  }
-};
-
-const Pomodoro = {
-  timer: null, timeLeft: 25 * 60, running: false,
-  openModal() {
-    const root = $('#modalRoot');
-    root.innerHTML = `
-      <div class="w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
-        <h3 class="text-lg font-extrabold">🍅 Pomodoro Focus Timer</h3>
-        <p id="pomoTime" class="text-5xl font-extrabold font-mono text-indigo-600">25:00</p>
-        <p id="pomoStatus" class="text-xs text-slate-500">Deep study session</p>
-        <div class="flex gap-2 pt-2">
-          <button id="pomoToggle" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm">Start</button>
-          <button id="pomoReset" class="px-4 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-sm font-semibold">Reset</button>
-          <button data-cancel class="px-4 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-sm font-semibold">Close</button>
-        </div>
-      </div>`;
-    root.classList.remove('hidden'); root.classList.add('flex');
-    const updateDisplay = () => {
-      const m = Math.floor(this.timeLeft / 60), s = this.timeLeft % 60;
-      $('#pomoTime').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    };
-    $('#pomoToggle').onclick = () => {
-      if (this.running) { clearInterval(this.timer); this.running = false; $('#pomoToggle').textContent = 'Start'; }
-      else {
-        this.running = true; $('#pomoToggle').textContent = 'Pause';
-        this.timer = setInterval(() => {
-          if (this.timeLeft > 0) { this.timeLeft--; updateDisplay(); }
-          else { clearInterval(this.timer); this.running = false; alert('Pomodoro session completed! Take a break.'); UI.toast('Pomodoro finished!', 'success'); }
-        }, 1000);
-      }
-    };
-    $('#pomoReset').onclick = () => { clearInterval(this.timer); this.running = false; this.timeLeft = 25 * 60; updateDisplay(); $('#pomoToggle').textContent = 'Start'; };
-    $('[data-cancel]', root).onclick = () => { clearInterval(this.timer); this.running = false; UI.closeModal(); };
-  }
-};
-
-const Mentor = {
-  messages: [], busy: false,
-  getKey() {
-    const custom = sessionStorage.getItem(Config.SS_KEY);
-    return custom ? custom.trim() : Config.DEFAULT_GEMINI_KEY;
-  },
   contextBlock() {
     const subs = Store.state.subjects;
-    const att = subs.length ? subs.map(s => `- ${s.name}: ${s.attended}/${s.total} (${fmtPct(pctOf(s.attended, s.total))})`).join('\n') : '- (no subjects)';
-    return `Student Attendance at BKBIET Pilani (75% cutoff):\n${att}`;
+
+    const attendance = subs.length
+      ? subs.map(s =>
+          `- ${s.name}: ${s.attended}/${s.total} (${fmtPct(
+            pctOf(s.attended, s.total)
+          )})`
+        ).join('\n')
+      : 'No attendance data available.';
+
+    const syllabus = Object.entries(Store.state.syllabus)
+      .map(([id, units]) => {
+        const subject = subs.find(s => s.id === id);
+        if (!subject) return '';
+
+        return `${subject.name}: ` +
+          units.map(u =>
+            `${u.title}: ${u.items.map(i =>
+              `${i.text} (${i.done ? 'Completed' : 'Pending'})`
+            ).join(', ')}`
+          ).join('; ');
+      })
+      .filter(Boolean)
+      .join('\n');
+
+    return `
+Student: BKBIET Pilani
+Attendance cutoff: 75%
+
+ATTENDANCE:
+${attendance}
+
+SYLLABUS:
+${syllabus || 'No syllabus entered yet.'}
+
+Answer in simple, understandable English.
+Give practical study advice.
+Never invent attendance or syllabus data.
+`;
   },
-  buildPrompt(q) {
-    return `You are ClassBunk AI Mentor for BKBIET Pilani engineering students.
-Context:\n${this.contextBlock()}
-Question: ${q}
-Provide a helpful, concise answer.`;
-  },
+
   init() {
-    this.messages = safeParse(localStorage.getItem(Config.LS_CHAT), [
-      { role: 'assistant', text: 'Hello! I am your Gemini-powered AI Mentor at BKBIET Pilani. Ask me anything about your attendance or study plans.' }
-    ]);
+    const saved = safeParse(
+      localStorage.getItem(Config.LS_CHAT),
+      []
+    );
+
+    this.messages = Array.isArray(saved)
+      ? saved.filter(m =>
+          m &&
+          ['user', 'assistant', 'warn'].includes(m.role) &&
+          typeof m.text === 'string'
+        ).slice(-50)
+      : [];
+
+    if (!this.messages.length) {
+      this.messages = [{
+        role: 'assistant',
+        text: 'Hello! I am your ClassBunk AI Mentor. Ask me about attendance, syllabus, exams or study planning.'
+      }];
+    }
+
     this.render();
   },
-  save() { localStorage.setItem(Config.LS_CHAT, JSON.stringify(this.messages)); },
-  scrollBottom() { const box = $('#chatBox'); if (box) box.scrollTop = box.scrollHeight; },
+
+  save() {
+    try {
+      localStorage.setItem(
+        Config.LS_CHAT,
+        JSON.stringify(this.messages.slice(-50))
+      );
+    } catch (error) {
+      console.error('Chat storage error:', error);
+    }
+  },
+
+  scrollBottom() {
+    const box = $('#chatBox');
+    if (box) box.scrollTop = box.scrollHeight;
+  },
+
   render() {
-    const box = $('#chatBox'); if (!box) return;
+    const box = $('#chatBox');
+    if (!box) return;
+
     box.innerHTML = this.messages.map(m => {
-      if (m.role === 'warn') return `<div class="rounded-xl p-3 bg-amber-500/10 text-xs text-amber-600">${esc(m.text)}</div>`;
-      const isU = m.role === 'user';
-      return `<div class="flex ${isU ? 'justify-end' : 'justify-start'}"><div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm ${isU ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800'}">${esc(m.text)}</div></div>`;
+      if (m.role === 'warn') {
+        return `
+          <div class="rounded-xl p-3 bg-amber-500/10
+          text-xs text-amber-600">
+            ${esc(m.text)}
+          </div>`;
+      }
+
+      const isUser = m.role === 'user';
+
+      return `
+        <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+          <div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm
+          whitespace-pre-wrap break-words ${
+            isUser
+              ? 'bg-indigo-600 text-white'
+              : 'bg-slate-100 dark:bg-slate-800'
+          }">
+            ${esc(m.text)}
+          </div>
+        </div>`;
     }).join('');
-    if (this.busy) box.innerHTML += `<div class="flex justify-start"><div class="rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-800 text-sm"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
+
+    if (this.busy) {
+      box.innerHTML += `
+        <div class="flex justify-start">
+          <div class="rounded-2xl px-4 py-3 bg-slate-100
+          dark:bg-slate-800 text-sm">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            Thinking...
+          </div>
+        </div>`;
+    }
+
     this.scrollBottom();
   },
-  async ask(q) {
-    const key = this.getKey();
-    this.messages.push({ role: 'user', text: q });
-    this.busy = true; this.save(); this.render();
-    let success = false, ans = '';
-    for (const m of Config.MODELS) {
-      $('#activeModel').textContent = m.id;
-      try {
-        const res = await fetch(Config.ENDPOINT(m.id, key), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: this.buildPrompt(q) }] }] })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || 'API error');
-        ans = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (ans) { success = true; break; }
-      } catch (err) { console.warn(m.id, err); }
-    }
-    this.busy = false;
-    if (success) this.messages.push({ role: 'assistant', text: ans });
-    else this.messages.push({ role: 'warn', text: '⚠️ Could not reach Gemini API. Please check internet connection.' });
-    this.save(); this.render();
-  }
-};
 
-document.addEventListener('DOMContentLoaded', () => {
-  Store.load();
-  UI.setTheme(localStorage.getItem(Config.LS_THEME) || 'dark');
-  Dashboard.render();
-  Timetable.restore();
-  Syllabus.refreshSelect();
-  Mentor.init();
+  async ask(question) {
+    const q = String(question || '').trim();
 
-  document.body.addEventListener('click', e => {
-    const act = e.target.closest('[data-action]')?.dataset.action;
-    if (!act) {
-      const nav = e.target.closest('.nav-btn');
-      if (nav) UI.showView(nav.dataset.view);
+    if (!q || this.busy) return;
+
+    if (q.length > 4000) {
+      UI.toast('Message is too long.', 'error');
       return;
     }
-    switch (act) {
-      case 'open-drawer': UI.openDrawer(); break;
-      case 'close-drawer': UI.closeDrawer(); break;
-      case 'toggle-theme': UI.toggleTheme(); break;
-      case 'save-key':
-        const k = $('#apiKeyInput').value.trim();
-        if (k) { sessionStorage.setItem(Config.SS_KEY, k); UI.toast('Custom API key saved', 'success'); UI.refreshSettings(); }
-        break;
-      case 'clear-key':
-        sessionStorage.removeItem(Config.SS_KEY);
-        $('#apiKeyInput').value = '';
-        UI.refreshSettings();
-        UI.toast('Reset to default preloaded key', 'info');
-        break;
-      case 'export-json':
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.state, null, 2));
-        const dl = document.createElement('a'); dl.href = dataStr; dl.download = 'classbunk_backup.json';
-        document.body.appendChild(dl); dl.click(); dl.remove();
-        UI.toast('Backup exported as JSON', 'success');
-        break;
-      case 'export-csv':
-        let csv = 'Subject,Attended,Total\n' + Store.state.subjects.map(s => `"${s.name}",${s.attended},${s.total}`).join('\n');
-        const csvStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-        const dlCsv = document.createElement('a'); dlCsv.href = csvStr; dlCsv.download = 'classbunk_attendance.csv';
-        document.body.appendChild(dlCsv); dlCsv.click(); dlCsv.remove();
-        UI.toast('Attendance exported as CSV', 'success');
-        break;
-      case 'reset-all':
-        if (confirm('Reset all data?')) { localStorage.clear(); sessionStorage.clear(); location.reload(); }
-        break;
-      case 'add-subject': Dashboard.addSubject(); break;
-      case 'compute-tt': Timetable.compute(); break;
-      case 'add-unit': Syllabus.addUnit(); break;
-      case 'open-pomodoro': Pomodoro.openModal(); break;
-      case 'open-cgpa-modal':
-        UI.form({
-          title: 'CGPA & Exam Target', submitText: 'Save Targets',
-          fields: [
-            { name: 'targetCgpa', label: 'Target CGPA (e.g. 8.5)', value: Store.state.cgpaTarget.targetCgpa },
-            { name: 'sessional', label: 'Current Sessional Average Marks (%)', value: Store.state.cgpaTarget.currentSessionalAvg }
-          ],
-          validate: x => (x.targetCgpa && x.sessional) ? '' : 'Both required'
-        }).then(v => {
-          if (!v) return;
-          Store.state.cgpaTarget = { targetCgpa: Number(v.targetCgpa), currentSessionalAvg: Number(v.sessional) };
-          Store.save(); Dashboard.render(); UI.toast('CGPA target saved', 'success');
-        });
-        break;
-      case 'clear-chat':
-        localStorage.removeItem(Config.LS_CHAT); Mentor.init(); UI.toast('Chat cleared', 'info');
-        break;
+
+    this.messages.push({ role: 'user', text: q });
+
+    this.busy = true;
+    this.save();
+    this.render();
+
+    const sendButton = $('#chatSend');
+    if (sendButton) sendButton.disabled = true;
+
+    this.controller = new AbortController();
+
+    const timeout = setTimeout(
+      () => this.controller?.abort(),
+      60000
+    );
+
+    try {
+      const history = this.messages
+        .filter(m =>
+          m.role === 'user' || m.role === 'assistant'
+        )
+        .slice(-12)
+        .map(m => ({
+          role: m.role,
+          text: m.text
+        }));
+
+      const response = await fetch(Config.AI_ENDPOINT, {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          question: q,
+          context: this.contextBlock(),
+          history
+        }),
+
+        signal: this.controller.signal
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || `Server error (${response.status})`
+        );
+      }
+
+      if (!data.text || typeof data.text !== 'string') {
+        throw new Error('AI returned an empty response.');
+      }
+
+      this.messages.push({
+        role: 'assistant',
+        text: data.text
+      });
+
+      if (data.model) {
+        $('#activeModel').textContent = data.model;
+      }
+
+    } catch (error) {
+      console.error('Mentor error:', error);
+
+      this.messages.push({
+        role: 'warn',
+        text: error.name === 'AbortError'
+          ? 'Request timed out. Please try again.'
+          : error.message || 'Unable to connect to AI server.'
+      });
+
+    } finally {
+      clearTimeout(timeout);
+
+      this.controller = null;
+      this.busy = false;
+
+      if (sendButton) sendButton.disabled = false;
+
+      this.save();
+      this.render();
     }
-  });
+  },
 
-  $('#subjectList').addEventListener('click', e => Dashboard.handleClick(e));
-  $('#sylList').addEventListener('click', e => Syllabus.handleClick(e));
-  $('#sylSubject').addEventListener('change', e => { Store.state.selectedSyllabus = e.target.value; Store.save(); Syllabus.render(); });
-  $('#simAttendInput').addEventListener('input', () => Dashboard.render());
+  clear() {
+    if (this.busy) {
+      this.controller?.abort();
+    }
 
-  $('#importFile').addEventListener('change', e => {
-    const f = e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      const parsed = safeParse(ev.target.result, null);
-      if (parsed && Array.isArray(parsed.subjects)) {
-        Store.state = parsed; Store.save(); location.reload();
-      } else { UI.toast('Invalid backup file', 'error'); }
+    this.messages = [{
+      role: 'assistant',
+      text: 'Chat cleared! What would you like to study today?'
+    }];
+
+    this.busy = false;
+    this.save();
+    this.render();
+  }
+};validate: (x) => {
+  if (!x.name) return 'Subject name is required.';
+
+  const attended = Number(x.attended);
+  const total = Number(x.total);
+
+  if (!Number.isInteger(attended) ||
+      !Number.isInteger(total) ||
+      attended < 0 ||
+      total < 0) {
+    return 'Enter valid non-negative whole numbers.';
+  }
+
+  if (attended > total) {
+    return 'Attended classes cannot exceed total classes.';
+  }
+
+  if (Store.state.subjects.some(
+    s => s.name.toLowerCase() === x.name.toLowerCase()
+  )) {
+    return 'Subject already exists.';
+  }
+
+  return '';
+}$('#importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    UI.toast('Backup file is too large.', 'error');
+    e.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = event => {
+    const backup = safeParse(event.target.result, null);
+
+    if (
+      !backup ||
+      typeof backup !== 'object' ||
+      !Array.isArray(backup.subjects)
+    ) {
+      UI.toast('Invalid backup file.', 'error');
+      return;
+    }
+
+    const subjects = backup.subjects.map(s => {
+      const attended = Number(s.attended);
+      const total = Number(s.total);
+
+      if (
+        typeof s.name !== 'string' ||
+        !s.name.trim() ||
+        !Number.isInteger(attended) ||
+        !Number.isInteger(total) ||
+        attended < 0 ||
+        total < attended
+      ) {
+        throw new Error('Invalid subject data.');
+      }
+
+      return {
+        id: String(s.id || uid()),
+        name: s.name.trim(),
+        attended,
+        total
+      };
+    });
+
+    try {
+      Store.state.subjects = subjects;
+      Store.state.syllabus =
+        backup.syllabus &&
+        typeof backup.syllabus === 'object' &&
+        !Array.isArray(backup.syllabus)
+          ? backup.syllabus
+          : {};
+
+      Store.state.timetable = Object.assign(
+        {
+          text: '',
+          weeks: 16,
+          projection: {},
+          updatedAt: null
+        },
+        backup.timetable || {}
+      );
+
+      Store.state.selectedSyllabus =
+        backup.selectedSyllabus || '';
+
+      Store.state.auditLogs =
+        Array.isArray(backup.auditLogs)
+          ? backup.auditLogs.slice(0, 15)
+          : [];
+
+      Store.state.cgpaTarget = Object.assign(
+        { targetCgpa: 8.5, currentSessionalAvg: 85 },
+        backup.cgpaTarget || {}
+      );
+
+      Store.save();
+
+      UI.toast('Backup restored successfully!', 'success');
+
+      setTimeout(() => location.reload(), 500);
+
+    } catch (error) {
+      UI.toast(error.message || 'Backup restoration failed.', 'error');
+    }
+  };
+
+  reader.readAsText(file);
+  e.target.value = '';
+});$('#importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    UI.toast('Backup file is too large.', 'error');
+    e.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = event => {
+    const backup = safeParse(event.target.result, null);
+
+    if (
+      !backup ||
+      typeof backup !== 'object' ||
+      !Array.isArray(backup.subjects)
+    ) {
+      UI.toast('Invalid backup file.', 'error');
+      return;
+    }
+
+    const subjects = backup.subjects.map(s => {
+      const attended = Number(s.attended);
+      const total = Number(s.total);
+
+      if (
+        typeof s.name !== 'string' ||
+        !s.name.trim() ||
+        !Number.isInteger(attended) ||
+        !Number.isInteger(total) ||
+        attended < 0 ||
+        total < attended
+      ) {
+        throw new Error('Invalid subject data.');
+      }
+
+      return {
+        id: String(s.id || uid()),
+        name: s.name.trim(),
+        attended,
+        total
+      };
+    });
+
+    try {
+      Store.state.subjects = subjects;
+      Store.state.syllabus =
+        backup.syllabus &&
+        typeof backup.syllabus === 'object' &&
+        !Array.isArray(backup.syllabus)
+          ? backup.syllabus
+          : {};
+
+      Store.state.timetable = Object.assign(
+        {
+          text: '',
+          weeks: 16,
+          projection: {},
+          updatedAt: null
+        },
+        backup.timetable || {}
+      );
+
+      Store.state.selectedSyllabus =
+        backup.selectedSyllabus || '';
+
+      Store.state.auditLogs =
+        Array.isArray(backup.auditLogs)
+          ? backup.auditLogs.slice(0, 15)
+          : [];
+
+      Store.state.cgpaTarget = Object.assign(
+        { targetCgpa: 8.5, currentSessionalAvg: 85 },
+        backup.cgpaTarget || {}
+      );
+
+      Store.save();
+
+      UI.toast('Backup restored successfully!', 'success');
+
+      setTimeout(() => location.reload(), 500);
+
+    } catch (error) {
+      UI.toast(error.message || 'Backup restoration failed.', 'error');
+    }
+  };
+
+  reader.readAsText(file);
+  e.target.value = '';
+});function bunkMath(a, t) {
+  a = Number(a) || 0;
+  t = Number(t) || 0;
+
+  if (t <= 0) {
+    return { bunks: 0, need: 0 };
+  }
+
+  if (a > t || a < 0) {
+    return { bunks: 0, need: 0 };
+  }
+
+  const required = Config.CUTOFF / 100;
+
+  if (a / t >= required) {
+    return {
+      bunks: Math.max(
+        0,
+        Math.floor(a / required - t + 1e-9)
+      ),
+      need: 0
     };
-    r.readAsText(f);
-  });
+  }
 
-  $('#chatForm').addEventListener('submit', e => {
-    e.preventDefault(); const inp = $('#chatInput'), q = inp.value.trim();
-    if (!q || Mentor.busy) return; inp.value = ''; Mentor.ask(q);
-  });
-  $('#quickPrompts').addEventListener('click', e => {
-    const btn = e.target.closest('[data-quick]'); if (btn && !Mentor.busy) Mentor.ask(btn.dataset.quick);
-  });
-  $('#drawerBackdrop').addEventListener('click', () => UI.closeDrawer());
-});
-</script>
-</body>
-</html>
+  return {
+    bunks: 0,
+    need: Math.ceil(
+      (required * t - a) / (1 - required) - 1e-9
+    )
+  };
+}const MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash'
+];
+
+export default {
+  async fetch(request, env) {
+    const origin = request.headers.get('Origin') || '';
+
+    const allowedOrigin = env.ALLOWED_ORIGIN || '';
+
+    const corsOrigin =
+      origin === allowedOrigin ? origin : 'null';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': corsOrigin,
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Vary': 'Origin'
+    };
+
+    const json = (data, status = 200) =>
+      new Response(JSON.stringify(data), {
+        status,
+        headers
+      });
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers
+      });
+    }
+
+    const url = new URL(request.url);
+
+    if (url.pathname === '/health' && request.method === 'GET') {
+      return json({
+        ok: true,
+        service: 'ClassBunk AI',
+        configured: Boolean(env.GEMINI_API_KEY)
+      });
+    }
+
+    if (url.pathname !== '/api/mentor') {
+      return json({ error: 'Not found' }, 404);
+    }
+
+    if (request.method !== 'POST') {
+      return json({ error: 'Method not allowed' }, 405);
+    }
+
+    if (!allowedOrigin || origin !== allowedOrigin) {
+      return json({ error: 'Origin not allowed' }, 403);
+    }
+
+    if (!env.GEMINI_API_KEY) {
+      return json({ error: 'AI server is not configured.' }, 503);
+    }
+
+    let body;
+
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: 'Invalid JSON request.' }, 400);
+    }
+
+    const question = String(body.question || '').trim();
+    const context = String(body.context || '').slice(0, 12000);
+
+    if (!question || question.length > 4000) {
+      return json({ error: 'Invalid question.' }, 400);
+    }
+
+    const history = Array.isArray(body.history)
+      ? body.history.slice(-12)
+      : [];
+
+    const contents = [];
+
+    for (const item of history) {
+      if (!item || typeof item.text !== 'string') continue;
+
+      const role = item.role === 'assistant' ? 'model' : 'user';
+
+      const text = item.text.slice(0, 4000);
+
+      // Avoid sending the current question twice.
+      if (
+        role === 'user' &&
+        text.trim() === question &&
+        item === history[history.length - 1]
+      ) {
+        continue;
+      }
+
+      contents.push({
+        role,
+        parts: [{ text }]
+      });
+    }
+
+    contents.push({
+      role: 'user',
+      parts: [{
+        text: `
+Current student information:
+${context}
+
+Current question:
+${question}
+`
+      }]
+    });
+
+    const systemInstruction = {
+      parts: [{
+        text: `
+You are ClassBunk AI Mentor for BKBIET Pilani students.
+
+Rules:
+1. Explain things in simple English.
+2. Give accurate attendance calculations.
+3. Help with syllabus, exam preparation and study planning.
+4. Never invent college announcements or syllabus information.
+5. Clearly explain when information is uncertain.
+6. Keep answers helpful and reasonably concise.
+`
+      }]
+    };
+
+    let lastError = 'All Gemini models failed.';
+
+    for (const model of MODELS) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': env.GEMINI_API_KEY
+            },
+
+            body: JSON.stringify({
+              systemInstruction,
+              contents,
+
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1500
+              }
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          lastError =
+            data.error?.message || `Gemini error ${response.status}`;
+
+          // Retry only when the model may be unavailable.
+          if (
+            response.status === 404 ||
+            response.status === 429 ||
+            response.status >= 500
+          ) {
+            continue;
+          }
+
+          return json({ error: lastError }, 502);
+        }
+
+        const answer = data.candidates
+          ?. [0]?.content?.parts
+          ?.map(part => part.text || '')
+          .join('')
+          .trim();
+
+        if (!answer) {
+          lastError = 'Gemini returned no text.';
+          continue;
+        }
+
+        return json({
+          ok: true,
+          text: answer,
+          model
+        });
+
+      } catch (error) {
+        lastError = error.message;
+      }
+    }
+
+    return json({
+      error: lastError
+    }, 502);
+  }
+};
