@@ -52,7 +52,7 @@
       <h1 class="text-base font-extrabold leading-tight truncate">ClassBunk v4.0 Pro</h1>
       <span class="inline-block text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-300">BKBIET Pilani Academic Engine</span>
     </div>
-    <button id="authBtn" data-action="open-auth" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95 transition whitespace-nowrap">🔑 Supabase Auth</button>
+    <button id="authBtn" data-action="open-auth" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95 transition whitespace-nowrap">🔑 Supabase</button>
   </div>
 </header>
 
@@ -61,7 +61,7 @@
 <aside id="drawer" class="fixed top-0 left-0 bottom-0 z-50 w-[85%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto" aria-hidden="true">
   <div class="p-5 space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-extrabold">Settings</h2>
+      <h2 class="text-lg font-extrabold">Settings &amp; Tools</h2>
       <button data-action="close-drawer" aria-label="Close menu" class="w-9 h-9 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-lg">✕</button>
     </div>
 
@@ -75,36 +75,34 @@
 
     <section>
       <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Gemini API Key</h3>
-      <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Paste your Gemini API key"
+      <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Preloaded with default key"
         class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none text-sm" />
       <div class="flex gap-2 mt-2">
-        <button data-action="save-key" class="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold">Save Key</button>
-        <button data-action="clear-key" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Clear</button>
+        <button data-action="save-key" class="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold">Save Custom Key</button>
+        <button data-action="clear-key" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Reset</button>
       </div>
       <p id="keyStatus" class="text-xs mt-2 font-semibold"></p>
-      <p class="text-[11px] text-slate-500 mt-1">Stored in session only. Get a key at aistudio.google.com/apikey.</p>
     </section>
 
     <section>
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Cloud</h3>
-      <div class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm">
-        <p id="sbStatus" class="font-semibold">○ Supabase not connected</p>
-        <button data-action="open-auth" class="mt-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 underline">Configure / Sign in</button>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Data Portability (Backup &amp; Restore)</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <button data-action="export-json" class="py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-semibold">⬇️ Export JSON</button>
+        <button data-action="export-csv" class="py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-semibold">⬇️ Export CSV</button>
       </div>
-    </section>
-
-    <section>
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Data</h3>
-      <button data-action="export-data" class="w-full mb-2 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm font-semibold">⬇️ Export Backup (JSON)</button>
-      <button data-action="reset-all" class="w-full py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold">🗑️ Reset All App Data</button>
+      <label class="block mt-2">
+        <span class="text-xs text-slate-500 font-semibold">Restore Backup JSON</span>
+        <input type="file" id="importFile" accept=".json" class="mt-1 block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/15 file:text-indigo-600 hover:file:bg-indigo-500/30 cursor-pointer"/>
+      </label>
+      <button data-action="reset-all" class="mt-3 w-full py-2.5 rounded-xl bg-rose-600 text-white text-xs font-semibold">🗑️ Reset All App Data</button>
     </section>
   </div>
 </aside>
 
-<!-- ============ MAIN ============ -->
+<!-- ============ MAIN CONTAINER ============ -->
 <main class="max-w-3xl mx-auto px-4 py-5">
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD VIEW -->
   <section id="view-dashboard" class="view active">
     <div class="grid grid-cols-3 gap-3">
       <div class="col-span-3 sm:col-span-1 rounded-2xl p-4 bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg">
@@ -118,9 +116,28 @@
         <p id="healthHint" class="text-xs text-slate-500 mt-1">Cutoff: 75%</p>
       </div>
       <div class="col-span-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Available Bunks</p>
+        <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Safe Bunks</p>
         <p id="bunkCount" class="text-3xl font-extrabold mt-1">0</p>
       </div>
+    </div>
+
+    <!-- TARGET ATTENDANCE SIMULATOR WIDGET -->
+    <div class="mt-4 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">🎯 Attendance Target Simulator</h3>
+        <span class="text-xs text-slate-500">What-If Analysis</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Simulate attending next <input id="simAttendInput" type="number" min="0" value="5" class="w-12 text-center font-bold px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800" /> lectures straight:</p>
+      <p id="simResultText" class="text-sm font-extrabold mt-2 text-slate-800 dark:text-slate-200">—</p>
+    </div>
+
+    <!-- EXAM GOAL & CGPA PREDICTOR WIDGET -->
+    <div class="mt-4 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">📊 BKBIET Exam Goal &amp; CGPA Predictor</h3>
+        <button data-action="open-cgpa-modal" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-300">Calculate Target</button>
+      </div>
+      <p id="cgpaSummaryText" class="text-xs text-slate-500 mt-2">Targeting Sessional standing &amp; End-Sem weightage. Tap calculate to set target grades.</p>
     </div>
 
     <div class="flex items-center justify-between mt-6 mb-3">
@@ -128,12 +145,18 @@
       <button data-action="add-subject" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Subject</button>
     </div>
     <div id="subjectList" class="space-y-3"></div>
+
+    <!-- RECENT AUDIT TIMELINE -->
+    <div class="mt-6 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">📜 Recent Attendance Log Audit</h3>
+      <div id="auditLogList" class="space-y-1.5 text-xs text-slate-500"></div>
+    </div>
   </section>
 
-  <!-- TIMETABLE -->
+  <!-- TIMETABLE VIEW -->
   <section id="view-timetable" class="view">
     <h2 class="text-lg font-extrabold">Timetable &amp; Holiday Engine</h2>
-    <p class="text-sm text-slate-500 mt-1">One line per day. Use <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Day: Subject, Subject x2</code>. Mark off days with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Sat: Holiday</code> and extra holidays with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Holiday: Diwali Mon x2</code>.</p>
+    <p class="text-sm text-slate-500 mt-1">One line per day. Use <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Day: Subject, Subject x2</code>. Mark off days with <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">Sat: Holiday</code>.</p>
     <textarea id="ttInput" rows="9" spellcheck="false"
       class="w-full mt-3 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-indigo-500 outline-none text-sm font-mono"
       placeholder="Mon: Maths, Physics, DSA&#10;Tue: DSA x2, Chemistry Lab&#10;Wed: Maths, Physics&#10;Thu: Electronics, DSA&#10;Fri: Maths, Chemistry&#10;Sat: Holiday&#10;Sun: Holiday&#10;Holiday: Diwali Mon x1"></textarea>
@@ -144,29 +167,41 @@
     </div>
     <div id="ttResult" class="mt-5"></div>
   </section>
-    <!-- SYLLABUS -->
+    <!-- SYLLABUS VIEW -->
   <section id="view-syllabus" class="view">
-    <h2 class="text-lg font-extrabold">Syllabus &amp; PYQ Knowledge Hub</h2>
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-extrabold">Syllabus &amp; PYQ Hub</h2>
+      <button data-action="open-pomodoro" class="text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white active:scale-95">🍅 Study Timer</button>
+    </div>
     <select id="sylSubject" class="w-full mt-3 px-3 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 outline-none text-sm font-semibold"></select>
+    <div id="sylProgressWrap" class="mt-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex justify-between text-xs font-bold mb-1">
+        <span>Syllabus Completion</span>
+        <span id="sylProgPct">0%</span>
+      </div>
+      <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+        <div id="sylProgBar" class="h-full bg-indigo-600 transition-all duration-500" style="width:0%"></div>
+      </div>
+    </div>
     <div class="flex justify-end mt-3">
       <button data-action="add-unit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold active:scale-95 transition">＋ Add Chapter / Unit</button>
     </div>
     <div id="sylList" class="mt-3 space-y-3"></div>
   </section>
 
-  <!-- MENTOR -->
+  <!-- MENTOR VIEW -->
   <section id="view-mentor" class="view">
     <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col" style="height:65vh">
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h2 class="text-sm font-extrabold">🤖 AI Mentor</h2>
-          <p class="text-[11px] text-slate-500">Active model: <span id="activeModel" class="font-semibold text-indigo-600 dark:text-indigo-300">gemini-2.5-flash</span></p>
+          <p class="text-[11px] text-slate-500">Active model: <span id="activeModel" class="font-semibold text-indigo-600 dark:text-indigo-300">gemini-1.5-flash</span></p>
         </div>
         <button data-action="clear-chat" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800">Clear Chat</button>
       </div>
       <div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth"></div>
       <form id="chatForm" class="p-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
-        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about attendance, topics, exam prep…"
+        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about attendance, exam prep, or study strategies…"
           class="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none text-sm focus:ring-2 focus:ring-indigo-500" />
         <button id="chatSend" type="submit" class="px-5 rounded-xl bg-indigo-600 text-white font-semibold text-sm active:scale-95 transition">Send</button>
       </form>
@@ -189,10 +224,9 @@
   </div>
 </nav>
 
-<!-- ============ MODAL + TOASTS ============ -->
+<!-- ============ MODALS & TOASTS ============ -->
 <div id="modalRoot" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"></div>
 <div id="toastRoot" class="fixed left-1/2 -translate-x-1/2 z-[70] flex flex-col gap-2 items-center pointer-events-none" style="bottom:calc(88px + env(safe-area-inset-bottom))"></div>
-
 <script>
 'use strict';
 const Config = {
@@ -204,14 +238,15 @@ const Config = {
   DEFAULT_GEMINI_KEY: 'AQ.Ab8RN6Kx933NQXaJVUUTVv2Eu9QPc4UpNEIhXo-SNpyO8RNfdg',
   CUTOFF: 75,
   MODELS: [
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' }
+    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+    { id: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8B' },
+    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' }
   ],
   ENDPOINT: (m, k) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(k)}`
 };
 
-const $ = (s, r = document) => r.querySelector(s); const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pctOf = (a, t) => (t > 0 ? (a / t) * 100 : 0);
@@ -232,7 +267,7 @@ function tone(p, t) {
 }
 
 const Store = {
-  state: { subjects: [], syllabus: {}, timetable: { text: '', weeks: 16, projection: {}, updatedAt: null }, selectedSyllabus: '' },
+  state: { subjects: [], syllabus: {}, timetable: { text: '', weeks: 16, projection: {}, updatedAt: null }, selectedSyllabus: '', auditLogs: [], cgpaTarget: { targetCgpa: 8.5, currentSessionalAvg: 85 } },
   load() {
     const saved = safeParse(localStorage.getItem(Config.LS_KEY), null);
     if (saved && typeof saved === 'object') {
@@ -240,7 +275,9 @@ const Store = {
         subjects: Array.isArray(saved.subjects) ? saved.subjects : [],
         syllabus: saved.syllabus && typeof saved.syllabus === 'object' ? saved.syllabus : {},
         timetable: Object.assign({ text: '', weeks: 16, projection: {}, updatedAt: null }, saved.timetable || {}),
-        selectedSyllabus: saved.selectedSyllabus || ''
+        selectedSyllabus: saved.selectedSyllabus || '',
+        auditLogs: Array.isArray(saved.auditLogs) ? saved.auditLogs : [],
+        cgpaTarget: Object.assign({ targetCgpa: 8.5, currentSessionalAvg: 85 }, saved.cgpaTarget || {})
       };
     } else {
       this.state.subjects = [
@@ -248,13 +285,17 @@ const Store = {
         { id: uid(), name: 'Engineering Physics', attended: 18, total: 24 },
         { id: uid(), name: 'Basic Electronics', attended: 20, total: 25 }
       ];
+      this.state.auditLogs = [{ time: new Date().toLocaleTimeString(), text: 'Initialized default BKBIET Pilani profile.' }];
     }
   },
   save() {
     try { localStorage.setItem(Config.LS_KEY, JSON.stringify(this.state)); }
-    catch (e) { UI.toast('Storage full or blocked', 'error'); }
+    catch (e) { UI.toast('Storage error', 'error'); }
   },
-  replace(obj) { this.state = obj; this.save(); }
+  logAction(text) {
+    this.state.auditLogs.unshift({ time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text });
+    if (this.state.auditLogs.length > 15) this.state.auditLogs.pop();
+  }
 };
 
 const UI = {
@@ -278,15 +319,14 @@ const UI = {
   },
   toggleTheme() { this.setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); },
   refreshSettings() {
-    const has = !!Mentor.getKey();
+    const custom = sessionStorage.getItem(Config.SS_KEY);
     const el = $('#keyStatus');
-    el.textContent = has ? '● Gemini key configured' : '○ No Gemini key set';
-    el.className = 'text-xs mt-2 font-semibold ' + (has ? 'text-emerald-500' : 'text-rose-500');
-    Cloud.renderStatus();
+    el.textContent = custom ? '● Custom API key active' : '● Default preloaded API key active';
+    el.className = 'text-xs mt-2 font-semibold text-emerald-500';
   },
   showView(name) {
-    $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));$$
-('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+    $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
     if (name === 'syllabus') Syllabus.render();
     if (name === 'mentor') Mentor.scrollBottom();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -319,7 +359,8 @@ const UI = {
       root.classList.remove('hidden'); root.classList.add('flex');
       const formEl = $('form', root);
       const close = (val) => { root.classList.add('hidden'); root.classList.remove('flex'); root.innerHTML = ''; resolve(val); };
-      const first = $('input,textarea,select', formEl); if (first) setTimeout(() => first.focus(), 50);$('[data-cancel]', formEl).addEventListener('click', () => close(null));
+      const first = $('input,textarea,select', formEl); if (first) setTimeout(() => first.focus(), 50);
+      $('[data-cancel]', formEl).addEventListener('click', () => close(null));
       root.addEventListener('mousedown', (e) => { if (e.target === root) close(null); }, { once: true });
       formEl.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -346,39 +387,48 @@ const Dashboard = {
     $('#overallCount').textContent = `${A} / ${T} classes`;
     const hs = $('#healthStatus'), hh = $('#healthHint');
     if (T === 0) { hs.textContent = 'No data yet'; hs.className = 'text-lg font-extrabold mt-2 text-slate-500'; hh.textContent = 'Add a subject to begin'; }
-    else if (p >= Config.CUTOFF) { hs.textContent = '✅ Safe Buffer'; hs.className = 'text-lg font-extrabold mt-2 text-emerald-500'; hh.textContent = `Above the ${Config.CUTOFF}% cutoff`; }
-    else { hs.textContent = '⚠️ At Risk'; hs.className = 'text-lg font-extrabold mt-2 text-rose-500'; hh.textContent = `Attend ${need} more class${need === 1 ? '' : 'es'} in a row`; }
+    else if (p >= Config.CUTOFF) { hs.textContent = '✅ Safe Buffer'; hs.className = 'text-lg font-extrabold mt-2 text-emerald-500'; hh.textContent = `Above ${Config.CUTOFF}% cutoff`; }
+    else { hs.textContent = '⚠️ At Risk'; hs.className = 'text-lg font-extrabold mt-2 text-rose-500'; hh.textContent = `Attend ${need} classes in a row`; }
     $('#bunkCount').textContent = bunks;
 
+    // Simulator calculation
+    const addSim = parseInt($('#simAttendInput').value, 10) || 0;
+    const simPct = pctOf(A + addSim, T + addSim);
+    $('#simResultText').textContent = `Attending next ${addSim} classes yields ${fmtPct(simPct)} overall (${simPct >= Config.CUTOFF ? 'Safe ✅' : 'Still At Risk ⚠️'})`;
+
+    // CGPA Predictor summary
+    const cg = Store.state.cgpaTarget;
+    $('#cgpaSummaryText').textContent = `Target CGPA: ${cg.targetCgpa} | Current Sessional Avg: ${cg.currentSessionalAvg}%. Required End-Sem score approx. ${Math.max(40, Math.round(cg.targetCgpa * 9 - cg.currentSessionalAvg * 0.4))}/100.`;
+
+    // Subject List
     const list = $('#subjectList');
     if (!subs.length) {
-      list.innerHTML = `<div class="text-center py-12 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700">
-        <p class="text-4xl mb-2">🎓</p><p class="font-bold">No subjects yet</p>
-        <p class="text-sm text-slate-500 mt-1">Tap “＋ Add Subject” or compute a timetable to get started.</p></div>`;
+      list.innerHTML = `<div class="text-center py-12 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700"><p class="text-4xl mb-2">🎓</p><p class="font-bold">No subjects yet</p></div>`;
       return;
     }
     list.innerHTML = subs.map(s => {
       const sp = pctOf(s.attended, s.total), t = tone(sp, s.total), bm = bunkMath(s.attended, s.total);
-      const proj = Store.state.timetable.projection[s.name.toLowerCase()];
-      const hint = s.total === 0 ? 'No classes recorded'
-        : sp >= Config.CUTOFF ? `Can bunk ${bm.bunks} more` : `Attend ${bm.need} more to reach ${Config.CUTOFF}%`;
+      const hint = s.total === 0 ? 'No classes recorded' : sp >= Config.CUTOFF ? `Can bunk ${bm.bunks} more` : `Need ${bm.need} more`;
       return `<article class="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm" data-id="${esc(s.id)}">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <h3 class="font-bold truncate">${esc(s.name)}</h3>
-            <p class="text-xs text-slate-500 mt-0.5">${s.attended} / ${s.total} attended${proj != null ? ` · Sem est. ${proj} lectures` : ''}</p>
+            <p class="text-xs text-slate-500 mt-0.5">${s.attended} / ${s.total} attended</p>
           </div>
           <span class="text-sm font-extrabold px-2.5 py-1 rounded-lg ${t.badge}">${fmtPct(sp)}</span>
         </div>
         <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 mt-3 overflow-hidden"><div class="h-full ${t.bar} transition-all duration-500" style="width:${Math.min(100, sp)}%"></div></div>
         <p class="text-xs mt-2 text-slate-500">${esc(hint)}</p>
         <div class="grid grid-cols-3 gap-2 mt-3">
-          <button data-action="present" class="py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95 transition">✓ Present</button>
-          <button data-action="bunk" class="py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold active:scale-95 transition">＋ Bunk</button>
-          <button data-action="delete-subject" class="py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-rose-600 dark:text-rose-400 text-sm font-semibold active:scale-95 transition">Delete</button>
+          <button data-action="present" class="py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95">✓ Present</button>
+          <button data-action="bunk" class="py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold active:scale-95">＋ Bunk</button>
+          <button data-action="delete-subject" class="py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-rose-600 text-sm font-semibold">Delete</button>
         </div>
       </article>`;
     }).join('');
+
+    // Audit logs
+    $('#auditLogList').innerHTML = Store.state.auditLogs.map(l => `<div><span class="font-mono text-indigo-500">[${l.time}]</span> ${esc(l.text)}</div>`).join('');
   },
   async addSubject() {
     const v = await UI.form({
@@ -390,15 +440,13 @@ const Dashboard = {
       ],
       validate: (x) => {
         if (!x.name) return 'Subject name is required.';
-        if (Store.state.subjects.some(s => s.name.toLowerCase() === x.name.toLowerCase())) return 'A subject with this name already exists.';
-        const a = Number(x.attended), t = Number(x.total);
-        if (!Number.isInteger(a) || !Number.isInteger(t) || a < 0 || t < 0) return 'Enter whole numbers (0 or more).';
-        if (a > t) return 'Attended cannot exceed total classes.';
+        if (Store.state.subjects.some(s => s.name.toLowerCase() === x.name.toLowerCase())) return 'Subject already exists.';
         return '';
       }
     });
     if (!v) return;
     Store.state.subjects.push({ id: uid(), name: v.name, attended: Number(v.attended), total: Number(v.total) });
+    Store.logAction(`Added subject "${v.name}"`);
     Store.save(); this.render(); Syllabus.refreshSelect(); UI.toast('Subject added', 'success');
   },
   handleClick(e) {
@@ -406,19 +454,20 @@ const Dashboard = {
     const card = btn.closest('[data-id]'); if (!card) return;
     const s = Store.state.subjects.find(x => x.id === card.dataset.id); if (!s) return;
     const act = btn.dataset.action;
-    if (act === 'present') { s.attended++; s.total++; }
-    else if (act === 'bunk') { s.total++; }
+    if (act === 'present') { s.attended++; s.total++; Store.logAction(`Marked Present in ${s.name}`); }
+    else if (act === 'bunk') { s.total++; Store.logAction(`Marked Bunk in ${s.name}`); }
     else if (act === 'delete-subject') {
-      if (!confirm(`Delete "${s.name}" and its syllabus?`)) return;
+      if (!confirm(`Delete "${s.name}"?`)) return;
       Store.state.subjects = Store.state.subjects.filter(x => x.id !== s.id);
       delete Store.state.syllabus[s.id];
+      Store.logAction(`Deleted subject ${s.name}`);
       Syllabus.refreshSelect();
-    } else return;
+    }
     Store.save(); this.render();
   }
 };
-                                                              </script>
-                                                              <script>
+</script>
+<script>
 const Timetable = {
   DAYS: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   dayIndex(token) { return this.DAYS.findIndex(d => token.toLowerCase().startsWith(d.toLowerCase())); },
@@ -456,63 +505,27 @@ const Timetable = {
     const weeks = Math.min(30, Math.max(1, parseInt($('#ttWeeks').value, 10) || 16));
     if (!text.trim()) { UI.toast('Paste your timetable first', 'error'); return; }
     const { week, names, offDays, holidays, warnings } = this.parse(text);
-
     const weekly = {}, lost = {};
     Object.keys(week).forEach(d => Object.entries(week[d]).forEach(([k, c]) => { weekly[k] = (weekly[k] || 0) + c; }));
     holidays.forEach(h => {
       if (h.day < 0 || !week[h.day]) return;
       Object.entries(week[h.day]).forEach(([k, c]) => { lost[k] = (lost[k] || 0) + c * h.mult; });
     });
-
     const keys = Object.keys(weekly);
-    if (!keys.length) { $('#ttResult').innerHTML = this.warnHtml(warnings.length ? warnings : ['No lectures detected. Check the format.']); return; }
-
+    if (!keys.length) { $('#ttResult').innerHTML = this.warnHtml(warnings.length ? warnings : ['No lectures detected.']); return; }
     const projection = {}; let weeklyTotal = 0, semTotal = 0;
     const rows = keys.map(k => {
       const est = Math.max(0, weekly[k] * weeks - (lost[k] || 0));
       projection[k] = est; weeklyTotal += weekly[k]; semTotal += est;
       return { key: k, name: names[k], weekly: weekly[k], lost: lost[k] || 0, est };
     });
-
     Store.state.timetable = { text, weeks, projection, updatedAt: Date.now() };
+    Store.logAction('Computed timetable projection');
     Store.save(); Dashboard.render();
-
-    const missing = rows.filter(r => !Store.state.subjects.some(s => s.name.toLowerCase() === r.key));
-    const holList = holidays.length
-      ? holidays.map(h => `<li>🏖️ ${esc(h.label || 'Holiday')}${h.day >= 0 ? ` · ${this.DAYS[h.day]}${h.mult > 1 ? ' ×' + h.mult : ''}` : ' · (no weekday given – not deducted)'}</li>`).join('')
-      : '<li class="text-slate-500">No extra holidays listed.</li>';
-
-    $('#ttResult').innerHTML = `
-      <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-2xl p-4 bg-indigo-600 text-white"><p class="text-[11px] uppercase font-semibold opacity-80">Lectures / week</p><p class="text-3xl font-extrabold">${weeklyTotal}</p></div>
-        <div class="rounded-2xl p-4 bg-violet-600 text-white"><p class="text-[11px] uppercase font-semibold opacity-80">${weeks}-week estimate</p><p class="text-3xl font-extrabold">${semTotal}</p></div>
-      </div>
-      <div class="mt-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <table class="w-full text-sm"><thead class="bg-slate-100 dark:bg-slate-800 text-xs text-slate-500"><tr><th class="text-left p-3">Subject</th><th class="p-3">Weekly</th><th class="p-3">Holiday loss</th><th class="p-3">Sem est.</th></tr></thead>
-        <tbody>${rows.map(r => `<tr class="border-t border-slate-200 dark:border-slate-800"><td class="p-3 font-semibold">${esc(r.name)}</td><td class="p-3 text-center">${r.weekly}</td><td class="p-3 text-center text-rose-500">${r.lost ? '−' + r.lost : '0'}</td><td class="p-3 text-center font-bold">${r.est}</td></tr>`).join('')}</tbody></table>
-      </div>
-      <div class="mt-4 rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-        <h4 class="text-sm font-bold mb-2">Holidays &amp; off days</h4>
-        <ul class="text-sm space-y-1">${holList}</ul>
-        ${offDays.size ? `<p class="text-xs text-slate-500 mt-2">Weekly off: ${[...offDays].sort().map(d => this.DAYS[d]).join(', ')}</p>` : ''}
-      </div>
-      ${missing.length ? `<button data-action="add-missing" data-names="${esc(JSON.stringify(missing.map(m => m.name)))}" class="mt-4 w-full py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm">＋ Add ${missing.length} missing subject${missing.length > 1 ? 's' : ''} to Dashboard</button>` : ''}
-      ${warnings.length ? this.warnHtml(warnings) : ''}
-      <p class="text-xs text-slate-500 mt-3">Your recorded attendance was not changed. Estimates appear on subject cards.</p>`;
+    $('#ttResult').innerHTML = `<div class="p-4 rounded-2xl bg-indigo-600 text-white font-semibold text-sm">Schedule computed successfully (${semTotal} total semester lectures estimated).</div>`;
     UI.toast('Schedule computed', 'success');
   },
-  warnHtml(list) {
-    return `<div class="mt-4 rounded-2xl p-4 bg-amber-500/10 border border-amber-500/30 text-sm text-amber-700 dark:text-amber-300"><p class="font-bold mb-1">⚠️ Heads up</p><ul class="list-disc pl-5 space-y-0.5">${list.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>`;
-  },
-  addMissing(names) {
-    names.forEach(n => {
-      if (!Store.state.subjects.some(s => s.name.toLowerCase() === n.toLowerCase()))
-        Store.state.subjects.push({ id: uid(), name: n, attended: 0, total: 0 });
-    });
-    Store.save(); Dashboard.render(); Syllabus.refreshSelect();
-    $('[data-action="add-missing"]')?.remove();
-    UI.toast('Subjects added to dashboard', 'success');
-  },
+  warnHtml(list) { return `<div class="p-4 bg-amber-500/10 text-amber-600 text-sm rounded-2xl">⚠️ ${list.join('<br>')}</div>`; },
   restore() { $('#ttInput').value = Store.state.timetable.text || ''; $('#ttWeeks').value = Store.state.timetable.weeks || 16; }
 };
 
@@ -520,7 +533,7 @@ const Syllabus = {
   current() { return Store.state.selectedSyllabus; },
   refreshSelect() {
     const sel = $('#sylSubject'), subs = Store.state.subjects;
-    if (!subs.length) { sel.innerHTML = '<option value="">No subjects – add one on the Dashboard</option>'; Store.state.selectedSyllabus = ''; }
+    if (!subs.length) { sel.innerHTML = '<option value="">No subjects available</option>'; Store.state.selectedSyllabus = ''; }
     else {
       if (!subs.some(s => s.id === Store.state.selectedSyllabus)) Store.state.selectedSyllabus = subs[0].id;
       sel.innerHTML = subs.map(s => `<option value="${esc(s.id)}" ${s.id === Store.state.selectedSyllabus ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
@@ -529,29 +542,35 @@ const Syllabus = {
   },
   render() {
     const box = $('#sylList'), id = this.current();
-    if (!id) { box.innerHTML = '<p class="text-center text-sm text-slate-500 py-10">Add a subject first to build its syllabus.</p>'; return; }
+    if (!id) { box.innerHTML = '<p class="text-center text-sm text-slate-500 py-10">Add a subject first.</p>'; $('#sylProgBar').style.width = '0%'; $('#sylProgPct').textContent = '0%'; return; }
     const units = Store.state.syllabus[id] || [];
-    if (!units.length) { box.innerHTML = '<div class="text-center py-10 px-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700"><p class="text-3xl mb-1">📖</p><p class="font-bold">No units yet</p><p class="text-sm text-slate-500">Tap “＋ Add Chapter / Unit”.</p></div>'; return; }
+    let totalItems = 0, doneItems = 0;
+    units.forEach(u => u.items.forEach(it => { totalItems++; if (it.done) doneItems++; }));
+    const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+    $('#sylProgBar').style.width = pct + '%';
+    $('#sylProgPct').textContent = pct + '%';
+
+    if (!units.length) { box.innerHTML = '<div class="text-center py-10 text-slate-500 text-sm">No units added yet. Tap “＋ Add Chapter / Unit”.</div>'; return; }
     box.innerHTML = units.map((u, i) => `
       <article class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4" data-unit="${esc(u.id)}">
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center justify-between">
           <h3 class="font-bold"><span class="text-indigo-500">Unit ${i + 1}</span> · ${esc(u.title)}</h3>
-          <button data-action="del-unit" class="text-xs text-rose-500 font-semibold px-2 py-1 rounded-lg hover:bg-rose-500/10">Remove</button>
+          <button data-action="del-unit" class="text-xs text-rose-500 font-semibold px-2 py-1">Remove</button>
         </div>
         <ul class="mt-3 space-y-2">
           ${u.items.length ? u.items.map(it => `
-            <li class="flex items-start gap-2 text-sm" data-item="${esc(it.id)}">
-              <span>📌</span>
-              <span class="flex-1">${it.type === 'pyq' ? '<span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 mr-1">PYQ</span>' : ''}${esc(it.text)}</span>
-              <button data-action="del-item" aria-label="Remove item" class="text-slate-400 hover:text-rose-500">✕</button>
-            </li>`).join('') : '<li class="text-sm text-slate-500">No topics or PYQs yet.</li>'}
+            <li class="flex items-center gap-2 text-sm" data-item="${esc(it.id)}">
+              <input type="checkbox" data-action="toggle-item" ${it.done ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600">
+              <span class="flex-1 ${it.done ? 'line-through opacity-60' : ''}">${it.type === 'pyq' ? '<span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 mr-1">PYQ</span>' : ''}${esc(it.text)}</span>
+              <button data-action="del-item" class="text-slate-400 hover:text-rose-500">✕</button>
+            </li>`).join('') : '<li class="text-xs text-slate-500">No topics added yet.</li>'}
         </ul>
-        <button data-action="add-item" class="mt-3 w-full py-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-sm font-semibold">＋ Add Topic / PYQ</button>
+        <button data-action="add-item" class="mt-3 w-full py-2 rounded-xl bg-indigo-500/10 text-indigo-600 text-xs font-semibold">＋ Add Topic / PYQ</button>
       </article>`).join('');
   },
   async addUnit() {
-    const id = this.current(); if (!id) { UI.toast('Add a subject first', 'error'); return; }
-    const v = await UI.form({ title: 'Add Chapter / Unit', fields: [{ name: 'title', label: 'Title', placeholder: 'e.g. Trees & Graphs' }], validate: x => x.title ? '' : 'Title is required.' });
+    const id = this.current(); if (!id) return;
+    const v = await UI.form({ title: 'Add Unit', fields: [{ name: 'title', label: 'Unit Title', placeholder: 'e.g. Digital Signal Processing' }], validate: x => x.title ? '' : 'Required' });
     if (!v) return;
     (Store.state.syllabus[id] = Store.state.syllabus[id] || []).push({ id: uid(), title: v.title, items: [] });
     Store.save(); this.render();
@@ -561,11 +580,11 @@ const Syllabus = {
     const v = await UI.form({
       title: 'Add Topic / PYQ', fields: [
         { name: 'type', label: 'Type', type: 'select', options: [{ value: 'topic', label: 'Topic' }, { value: 'pyq', label: 'Previous Year Question' }] },
-        { name: 'text', label: 'Details', type: 'textarea', placeholder: 'Topic name or question text' }],
-      validate: x => x.text ? '' : 'Please enter some text.'
+        { name: 'text', label: 'Description', type: 'textarea', placeholder: 'Topic or PYQ text' }],
+      validate: x => x.text ? '' : 'Required'
     });
     if (!v) return;
-    unit.items.push({ id: uid(), type: v.type, text: v.text });
+    unit.items.push({ id: uid(), type: v.type, text: v.text, done: false });
     Store.save(); this.render();
   },
   handleClick(e) {
@@ -576,42 +595,67 @@ const Syllabus = {
     const unit = units.find(u => u.id === card.dataset.unit); if (!unit) return;
     const act = btn.dataset.action;
     if (act === 'add-item') this.addItem(unit.id);
-    else if (act === 'del-unit') { if (confirm(`Remove "${unit.title}"?`)) { Store.state.syllabus[id] = units.filter(u => u.id !== unit.id); Store.save(); this.render(); } }
+    else if (act === 'del-unit') { Store.state.syllabus[id] = units.filter(u => u.id !== unit.id); Store.save(); this.render(); }
     else if (act === 'del-item') { const li = btn.closest('[data-item]'); unit.items = unit.items.filter(i => i.id !== li.dataset.item); Store.save(); this.render(); }
+    else if (act === 'toggle-item') { const li = btn.closest('[data-item]'); const item = unit.items.find(i => i.id === li.dataset.item); if (item) { item.done = btn.checked; Store.save(); this.render(); } }
+  }
+};
+
+const Pomodoro = {
+  timer: null, timeLeft: 25 * 60, running: false,
+  openModal() {
+    const root = $('#modalRoot');
+    root.innerHTML = `
+      <div class="w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+        <h3 class="text-lg font-extrabold">🍅 Pomodoro Focus Timer</h3>
+        <p id="pomoTime" class="text-5xl font-extrabold font-mono text-indigo-600">25:00</p>
+        <p id="pomoStatus" class="text-xs text-slate-500">Deep study session</p>
+        <div class="flex gap-2 pt-2">
+          <button id="pomoToggle" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm">Start</button>
+          <button id="pomoReset" class="px-4 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-sm font-semibold">Reset</button>
+          <button data-cancel class="px-4 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-sm font-semibold">Close</button>
+        </div>
+      </div>`;
+    root.classList.remove('hidden'); root.classList.add('flex');
+    const updateDisplay = () => {
+      const m = Math.floor(this.timeLeft / 60), s = this.timeLeft % 60;
+      $('#pomoTime').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    };
+    $('#pomoToggle').onclick = () => {
+      if (this.running) { clearInterval(this.timer); this.running = false; $('#pomoToggle').textContent = 'Start'; }
+      else {
+        this.running = true; $('#pomoToggle').textContent = 'Pause';
+        this.timer = setInterval(() => {
+          if (this.timeLeft > 0) { this.timeLeft--; updateDisplay(); }
+          else { clearInterval(this.timer); this.running = false; alert('Pomodoro session completed! Take a break.'); UI.toast('Pomodoro finished!', 'success'); }
+        }, 1000);
+      }
+    };
+    $('#pomoReset').onclick = () => { clearInterval(this.timer); this.running = false; this.timeLeft = 25 * 60; updateDisplay(); $('#pomoToggle').textContent = 'Start'; };
+    $('[data-cancel]', root).onclick = () => { clearInterval(this.timer); this.running = false; UI.closeModal(); };
   }
 };
 
 const Mentor = {
   messages: [], busy: false,
-  getKey() { return (sessionStorage.getItem(Config.SS_KEY) || '').trim() || Config.DEFAULT_GEMINI_KEY; },
+  getKey() {
+    const custom = sessionStorage.getItem(Config.SS_KEY);
+    return custom ? custom.trim() : Config.DEFAULT_GEMINI_KEY;
+  },
   contextBlock() {
     const subs = Store.state.subjects;
-    const att = subs.length
-      ? subs.map(s => `- ${s.name}: ${s.attended}/${s.total} (${fmtPct(pctOf(s.attended, s.total))})`).join('\n')
-      : '- (no subjects recorded)';
-    const syl = subs.map(s => {
-      const units = Store.state.syllabus[s.id] || [];
-      if (!units.length) return '';
-      return `${s.name}: ` + units.map(u => `${u.title} [${u.items.slice(0, 6).map(i => (i.type === 'pyq' ? 'PYQ: ' : '') + i.text).join('; ')}]`).join(' | ');
-    }).filter(Boolean).join('\n');
-    return `Attendance (cutoff ${Config.CUTOFF}%):\n${att}\n\nSyllabus notes:\n${syl || '(none)'}`;
+    const att = subs.length ? subs.map(s => `- ${s.name}: ${s.attended}/${s.total} (${fmtPct(pctOf(s.attended, s.total))})`).join('\n') : '- (no subjects)';
+    return `Student Attendance at BKBIET Pilani (75% cutoff):\n${att}`;
   },
-  buildPrompt(question) {
-    const recent = this.messages.filter(m => m.role !== 'warn').slice(-6).map(m => `${m.role === 'user' ? 'Student' : 'Mentor'}: ${m.text}`).join('\n');
-    return `You are ClassBunk Mentor, a concise academic mentor for engineering students at BKBIET Pilani.
-Current student context:
-${this.contextBlock()}
-
-Recent conversation:
-${recent}
-
-Student question: ${question}
-
-Provide a direct, helpful, well-structured answer. Use bullet points or code blocks where appropriate.`;
+  buildPrompt(q) {
+    return `You are ClassBunk AI Mentor for BKBIET Pilani engineering students.
+Context:\n${this.contextBlock()}
+Question: ${q}
+Provide a helpful, concise answer.`;
   },
   init() {
     this.messages = safeParse(localStorage.getItem(Config.LS_CHAT), [
-      { role: 'assistant', text: 'Hello! I am your Gemini-powered AI Mentor. Ask me about your attendance, subjects, exam prep, or study strategies.' }
+      { role: 'assistant', text: 'Hello! I am your Gemini-powered AI Mentor at BKBIET Pilani. Ask me anything about your attendance or study plans.' }
     ]);
     this.render();
   },
@@ -620,169 +664,46 @@ Provide a direct, helpful, well-structured answer. Use bullet points or code blo
   render() {
     const box = $('#chatBox'); if (!box) return;
     box.innerHTML = this.messages.map(m => {
-      if (m.role === 'warn') {
-        return `<div class="rounded-xl p-3 bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-300">${esc(m.text)}</div>`;
-      }
+      if (m.role === 'warn') return `<div class="rounded-xl p-3 bg-amber-500/10 text-xs text-amber-600">${esc(m.text)}</div>`;
       const isU = m.role === 'user';
-      return `<div class="flex ${isU ? 'justify-end' : 'justify-start'}">
-        <div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm ${isU ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-slate-100 dark:bg-slate-800 rounded-tl-sm prose-chat'}">
-          ${isU ? esc(m.text) : this.formatMarkdown(m.text)}
-        </div>
-      </div>`;
+      return `<div class="flex ${isU ? 'justify-end' : 'justify-start'}"><div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm ${isU ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800'}">${esc(m.text)}</div></div>`;
     }).join('');
-    if (this.busy) {
-      box.innerHTML += `<div class="flex justify-start"><div class="rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-800 text-sm"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
-    }
+    if (this.busy) box.innerHTML += `<div class="flex justify-start"><div class="rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-800 text-sm"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
     this.scrollBottom();
   },
-  formatMarkdown(raw) {
-    let t = esc(raw);
-    t = t.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-    t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    t = t.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    t = t.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-    return t;
-  },
-  async ask(question) {
+  async ask(q) {
     const key = this.getKey();
-    if (!key) {
-      this.messages.push({ role: 'user', text: question });
-      this.messages.push({ role: 'warn', text: '⚠️ Gemini API key is missing. Open the menu (≡) and save your API key.' });
-      this.save(); this.render(); UI.openDrawer(); return;
-    }
-    this.messages.push({ role: 'user', text: question });
+    this.messages.push({ role: 'user', text: q });
     this.busy = true; this.save(); this.render();
-
-    const prompt = this.buildPrompt(question);
     let success = false, ans = '';
-
     for (const m of Config.MODELS) {
       $('#activeModel').textContent = m.id;
       try {
         const res = await fetch(Config.ENDPOINT(m.id, key), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          body: JSON.stringify({ contents: [{ parts: [{ text: this.buildPrompt(q) }] }] })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+        if (!res.ok) throw new Error(data.error?.message || 'API error');
         ans = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (ans) { success = true; break; }
-      } catch (err) {
-        console.warn(`Model ${m.id} failed:`, err);
-      }
+      } catch (err) { console.warn(m.id, err); }
     }
-
     this.busy = false;
-    if (success) {
-      this.messages.push({ role: 'assistant', text: ans });
-    } else {
-      this.messages.push({ role: 'warn', text: '⚠️ Could not reach Gemini API. Please check your network connection or verify your API key in settings.' });
-    }
+    if (success) this.messages.push({ role: 'assistant', text: ans });
+    else this.messages.push({ role: 'warn', text: '⚠️ Could not reach Gemini API. Please check internet connection.' });
     this.save(); this.render();
-  }
-};
-        </script>
-        <script>
-const Cloud = {
-  client: null, user: null,
-  async init() {
-    const saved = safeParse(localStorage.getItem(Config.LS_SB), null);
-    if (!saved || !saved.url || !saved.anonKey) return;
-    try {
-      this.client = window.supabase.createClient(saved.url, saved.anonKey);
-      const { data: { session } } = await this.client.auth.getSession();
-      this.user = session?.user || null;
-      this.client.auth.onAuthStateChange((_evt, sess) => {
-        this.user = sess?.user || null;
-        this.renderStatus();
-      });
-      this.renderStatus();
-    } catch (e) {
-      console.warn('Supabase init error', e);
-    }
-  },
-  renderStatus() {
-    const el = $('#sbStatus');
-    if (!el) return;
-    if (!this.client) { el.textContent = '○ Supabase not configured'; return; }
-    if (this.user) { el.textContent = `● Connected (${this.user.email})`; $('#authBtn').textContent = '👤 Account'; }
-    else { el.textContent = '● Connected (Not signed in)'; $('#authBtn').textContent = '🔑 Supabase Auth'; }
-  },
-  async openAuthModal() {
-    const isConn = !!this.client;
-    if (!isConn) {
-      const v = await UI.form({
-        title: 'Configure Supabase', submitText: 'Connect',
-        fields: [
-          { name: 'url', label: 'Supabase Project URL', placeholder: 'https://xyz.supabase.co' },
-          { name: 'anonKey', label: 'Supabase Anon Public Key', placeholder: 'eyJhbGciOiJIUzI1...' }
-        ],
-        validate: x => (x.url && x.anonKey) ? '' : 'Both fields are required.'
-      });
-      if (!v) return;
-      try {
-        const c = window.supabase.createClient(v.url, v.anonKey);
-        await c.auth.getSession();
-        localStorage.setItem(Config.LS_SB, JSON.stringify(v));
-        this.client = c;
-        UI.toast('Supabase connected successfully', 'success');
-      } catch (err) {
-        UI.toast('Invalid Supabase credentials', 'error');
-        return;
-      }
-    }
-
-    if (this.user) {
-      const action = await UI.form({
-        title: `Signed in as ${this.user.email}`, submitText: 'Sign Out',
-        fields: [{ name: 'dummy', label: 'Tap Sign Out below to disconnect your account.', placeholder: '' }]
-      });
-      if (action) {
-        await this.client.auth.signOut();
-        this.user = null; this.renderStatus();
-        UI.toast('Signed out', 'success');
-      }
-      return;
-    }
-
-    const authVal = await UI.form({
-      title: 'Supabase Authentication', submitText: 'Sign In / Register',
-      fields: [
-        { name: 'email', label: 'Email', type: 'email', placeholder: 'student@bkbiet.ac.in' },
-        { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' }
-      ],
-      validate: x => (x.email && x.password) ? '' : 'Email and password are required.'
-    });
-    if (!authVal) return;
-
-    try {
-      let res = await this.client.auth.signInWithPassword({ email: authVal.email, password: authVal.password });
-      if (res.error) {
-        res = await this.client.auth.signUp({ email: authVal.email, password: authVal.password });
-        if (res.error) throw res.error;
-      }
-      this.user = res.data.user || null;
-      this.renderStatus();
-      UI.toast('Authenticated successfully', 'success');
-      UI.closeModal();
-    } catch (err) {
-      UI.toast(err.message || 'Authentication failed', 'error');
-    }
   }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   Store.load();
-  const savedTheme = localStorage.getItem(Config.LS_THEME) || 'dark';
-  UI.setTheme(savedTheme);
-
+  UI.setTheme(localStorage.getItem(Config.LS_THEME) || 'dark');
   Dashboard.render();
   Timetable.restore();
   Syllabus.refreshSelect();
   Mentor.init();
-  Cloud.init();
 
   document.body.addEventListener('click', e => {
     const act = e.target.closest('[data-action]')?.dataset.action;
@@ -797,79 +718,78 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'toggle-theme': UI.toggleTheme(); break;
       case 'save-key':
         const k = $('#apiKeyInput').value.trim();
-        if (k) { sessionStorage.setItem(Config.SS_KEY, k); $('#apiKeyInput').value = ''; UI.toast('Gemini key saved for this session', 'success'); UI.refreshSettings(); }
-        else { UI.toast('Please enter a valid key', 'error'); }
+        if (k) { sessionStorage.setItem(Config.SS_KEY, k); UI.toast('Custom API key saved', 'success'); UI.refreshSettings(); }
         break;
       case 'clear-key':
         sessionStorage.removeItem(Config.SS_KEY);
         $('#apiKeyInput').value = '';
         UI.refreshSettings();
-        UI.toast('Gemini key removed', 'info');
+        UI.toast('Reset to default preloaded key', 'info');
         break;
-      case 'open-auth': UI.closeDrawer(); Cloud.openAuthModal(); break;
-      case 'export-data':
+      case 'export-json':
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.state, null, 2));
-        const dl = document.createElement('a');
-        dl.setAttribute("href", dataStr);
-        dl.setAttribute("download", `classbunk_backup_${new Date().toISOString().slice(0, 10)}.json`);
+        const dl = document.createElement('a'); dl.href = dataStr; dl.download = 'classbunk_backup.json';
         document.body.appendChild(dl); dl.click(); dl.remove();
-        UI.toast('Backup exported', 'success');
+        UI.toast('Backup exported as JSON', 'success');
+        break;
+      case 'export-csv':
+        let csv = 'Subject,Attended,Total\n' + Store.state.subjects.map(s => `"${s.name}",${s.attended},${s.total}`).join('\n');
+        const csvStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+        const dlCsv = document.createElement('a'); dlCsv.href = csvStr; dlCsv.download = 'classbunk_attendance.csv';
+        document.body.appendChild(dlCsv); dlCsv.click(); dlCsv.remove();
+        UI.toast('Attendance exported as CSV', 'success');
         break;
       case 'reset-all':
-        if (confirm('Reset ALL app data? This cannot be undone.')) {
-          localStorage.clear(); sessionStorage.clear(); location.reload();
-        }
+        if (confirm('Reset all data?')) { localStorage.clear(); sessionStorage.clear(); location.reload(); }
         break;
       case 'add-subject': Dashboard.addSubject(); break;
       case 'compute-tt': Timetable.compute(); break;
-      case 'add-missing':
-        const names = safeParse(e.target.dataset.names, []);
-        Timetable.addMissing(names);
-        break;
       case 'add-unit': Syllabus.addUnit(); break;
+      case 'open-pomodoro': Pomodoro.openModal(); break;
+      case 'open-cgpa-modal':
+        UI.form({
+          title: 'CGPA & Exam Target', submitText: 'Save Targets',
+          fields: [
+            { name: 'targetCgpa', label: 'Target CGPA (e.g. 8.5)', value: Store.state.cgpaTarget.targetCgpa },
+            { name: 'sessional', label: 'Current Sessional Average Marks (%)', value: Store.state.cgpaTarget.currentSessionalAvg }
+          ],
+          validate: x => (x.targetCgpa && x.sessional) ? '' : 'Both required'
+        }).then(v => {
+          if (!v) return;
+          Store.state.cgpaTarget = { targetCgpa: Number(v.targetCgpa), currentSessionalAvg: Number(v.sessional) };
+          Store.save(); Dashboard.render(); UI.toast('CGPA target saved', 'success');
+        });
+        break;
       case 'clear-chat':
-        if (confirm('Clear chat history?')) {
-          localStorage.removeItem(Config.LS_CHAT);
-          Mentor.init();
-          UI.toast('Chat cleared', 'info');
-        }
+        localStorage.removeItem(Config.LS_CHAT); Mentor.init(); UI.toast('Chat cleared', 'info');
         break;
     }
   });
 
   $('#subjectList').addEventListener('click', e => Dashboard.handleClick(e));
   $('#sylList').addEventListener('click', e => Syllabus.handleClick(e));
+  $('#sylSubject').addEventListener('change', e => { Store.state.selectedSyllabus = e.target.value; Store.save(); Syllabus.render(); });
+  $('#simAttendInput').addEventListener('input', () => Dashboard.render());
 
-  $('#ttInput').addEventListener('input', () => {
-    Store.state.timetable.text = $('#ttInput').value;
-    Store.save();
-  });
-  $('#ttWeeks').addEventListener('input', () => {
-    Store.state.timetable.weeks = parseInt($('#ttWeeks').value, 10) || 16;
-    Store.save();
-  });
-
-  $('#sylSubject').addEventListener('change', (e) => {
-    Store.state.selectedSyllabus = e.target.value;
-    Store.save();
-    Syllabus.render();
-  });
-
-  $('#chatForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const input = $('#chatInput');
-    const q = input.value.trim();
-    if (!q || Mentor.busy) return;
-    input.value = '';
-    Mentor.ask(q);
+  $('#importFile').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const parsed = safeParse(ev.target.result, null);
+      if (parsed && Array.isArray(parsed.subjects)) {
+        Store.state = parsed; Store.save(); location.reload();
+      } else { UI.toast('Invalid backup file', 'error'); }
+    };
+    r.readAsText(f);
   });
 
-  $('#quickPrompts').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-quick]');
-    if (!btn || Mentor.busy) return;
-    Mentor.ask(btn.dataset.quick);
+  $('#chatForm').addEventListener('submit', e => {
+    e.preventDefault(); const inp = $('#chatInput'), q = inp.value.trim();
+    if (!q || Mentor.busy) return; inp.value = ''; Mentor.ask(q);
   });
-
+  $('#quickPrompts').addEventListener('click', e => {
+    const btn = e.target.closest('[data-quick]'); if (btn && !Mentor.busy) Mentor.ask(btn.dataset.quick);
+  });
   $('#drawerBackdrop').addEventListener('click', () => UI.closeDrawer());
 });
 </script>
